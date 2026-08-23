@@ -60,7 +60,7 @@ class HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tracking'),
+        title: const Text('GPS Tracking'),
         actions: <Widget> [
           IconButton(
             icon: Icon(
