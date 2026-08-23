@@ -1,0 +1,41 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "skyfrog-app-741d3",
+          "appId": "1:725529644795:android:cd2fa5ad90222d53a7ea5e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "skyfrog-app-741d3",
+          "appId": "1:725529644795:ios:cd758f3512efb7aca7ea5e",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "skyfrog-app-741d3",
+          "appId": "1:725529644795:ios:cd758f3512efb7aca7ea5e",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "skyfrog-app-741d3",
+          "configurations": {
+            "android": "1:725529644795:android:cd2fa5ad90222d53a7ea5e",
+            "ios": "1:725529644795:ios:cd758f3512efb7aca7ea5e",
+            "macos": "1:725529644795:ios:cd758f3512efb7aca7ea5e",
+            "web": "1:725529644795:web:8bccd4c2c9b1178fa7ea5e",
+            "windows": "1:725529644795:web:d077c3ca927c5e30a7ea5e"
+          }
+        }
+      }
+    }
+  }
+}
