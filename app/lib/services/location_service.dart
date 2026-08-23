@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-// import 'dart:math';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -17,16 +16,12 @@ class LocationService {
 
   LocationService._internal();
 
-  final battery = Battery();
-
   final locationController = StreamController<LocationModel>.broadcast();
   Stream<LocationModel> get locationStream => locationController.stream;
-
   StreamSubscription<Position>? positionSub;
 
-  // bool _isTracking = false;
-  // bool get isTracking => _isTracking;
-  
+  final battery = Battery();
+
   Position? lastPosition;
   int lastWriteMs = 0;
 
@@ -89,7 +84,9 @@ class LocationService {
     locationController.add(loc);
 
     await Future.wait([
+      writeRealtimeLocation(uuid, loc),
       writeCurrentLocation(uuid, loc),
+      updatePresence(uuid),
     ]);
 
   }
@@ -155,22 +152,24 @@ class LocationService {
     positionSub = null;
     lastPosition = null;
 
-    // await FirebaseDatabase.instance
-    //   .ref('members/$userId')
-    //   .set({
-    //     'status': 'offline', 
-    //     'lastChanged': ServerValue.timestamp,
-    //   });
-
     await FirebaseDatabase.instance.ref('members/$uuid/status').set('offline');
     await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);
 
   }
 
-  Future<void> writeCurrentLocation(String? uuid, LocationModel loc) async {
+  Future<void> writeRealtimeLocation(String? uuid, LocationModel loc) async {
     await FirebaseDatabase.instance
       .ref('members/$uuid/realtimeLocation/${DateTime.now().millisecondsSinceEpoch}')
       .set(loc.toCurrentLocationJson());
+  }
+
+  Future<void> writeCurrentLocation(String? uuid, LocationModel loc) async {
+    await FirebaseDatabase.instance.ref('members/$uuid/currentLocation').set(loc.toHistoryJson());
+  }
+
+  Future<void> updatePresence(String? uuid) async {
+    await FirebaseDatabase.instance.ref('members/$uuid/status').set('online');
+    await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);
   }
 
 }

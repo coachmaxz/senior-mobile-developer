@@ -26,7 +26,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   LocationModel? myLocation;
 
-  bool isRiding = false;
+  bool isTracking = false;
   bool permDenied = false;
 
   static String? uuid = 'demo';
@@ -35,6 +35,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    getDeviceId();
     locService.locationStream.listen((loc) {
       if (mounted) setState(() => myLocation = loc);
     });
@@ -59,12 +60,12 @@ class HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Live Map'),
-        actions: [
+        title: const Text('Tracking'),
+        actions: <Widget> [
           IconButton(
             icon: Icon(
-              isRiding ? Icons.stop_circle : Icons.play_circle_filled,
-              color: isRiding ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+              isTracking ? Icons.stop_circle : Icons.play_circle_filled,
+              color: isTracking ? const Color(0xFFEF4444) : const Color(0xFF10B981),
               size: 28,
             ),
             onPressed: toggleRide,
@@ -90,7 +91,7 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        isRiding ? 'กำลังส่ง GPS Realtime...' : 'กด START เพื่อเริ่มแชร์ตำแหน่ง',
+                        isTracking ? 'กำลังส่ง GPS Realtime...' : 'กด START เพื่อเริ่มแชร์ตำแหน่ง',
                         style: const TextStyle(
                           color: Color(0xFF94A3B8), 
                           fontSize: 16,
@@ -105,12 +106,12 @@ class HomeScreenState extends State<HomeScreen> {
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             icon: Icon(
-                              isRiding ? Icons.stop_circle : Icons.play_circle_filled, 
+                              isTracking ? Icons.stop_circle : Icons.play_circle_filled, 
                               color: Color(0xFFFFFFFF), 
                               size: 20,
                             ),
                             label: Text(
-                              isRiding ? 'STOP RIDE' : 'START RIDE',
+                              isTracking ? 'STOP RIDE' : 'START RIDE',
                               style: const TextStyle(
                                 color: Color(0xFFFFFFFF), 
                                 fontSize: 18,
@@ -118,7 +119,7 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                             onPressed: toggleRide,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: isRiding ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                              backgroundColor: isTracking ? const Color(0xFFEF4444) : const Color(0xFF10B981),
                               padding: const EdgeInsets.symmetric(
                                 vertical: 16,
                               ),
@@ -223,7 +224,7 @@ class HomeScreenState extends State<HomeScreen> {
     String? uuid = await getDeviceId();
     if (!mounted) return;
 
-    if (!isRiding) {
+    if (!isTracking) {
 
       final granted = await locService.requestPermissions();
 
@@ -232,7 +233,7 @@ class HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      setState(() => isRiding = true);
+      setState(() => isTracking = true);
 
       await locService.startTracking(uuid: uuid.toString());
       await FirebaseDatabase.instance
@@ -241,12 +242,14 @@ class HomeScreenState extends State<HomeScreen> {
 
     } else {
 
-      setState(() => isRiding = false);
+      setState(() => isTracking = false);
 
       await locService.stopTracking(uuid: uuid.toString());
       await FirebaseDatabase.instance
         .ref('members/$uuid/status')
         .set('stopped');
+
+      loadLocation();
 
     }
   
