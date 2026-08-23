@@ -21,6 +21,7 @@ dependencies:
   flutter_background_service: ^5.1.0
   battery_plus: ^7.1.1
   shared_preferences: ^2.5.5
+  uuid: ^4.6.0
 
 dev_dependencies:
   flutter_test:

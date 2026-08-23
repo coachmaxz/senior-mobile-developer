@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 // import '../../core/config/app_config.dart';
 
 import '../../services/location_service.dart';
@@ -26,12 +29,16 @@ class HomeScreenState extends State<HomeScreen> {
   bool isRiding = false;
   bool permDenied = false;
 
+  static String? uuid = 'demo';
+  static const String deviceIdKey = 'device_id';
+
   @override
   void initState() {
     super.initState();
     locService.locationStream.listen((loc) {
       if (mounted) setState(() => myLocation = loc);
     });
+    loadLocation();
   }
 
   @override
@@ -48,32 +55,21 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
 
     final myLoc = myLocation;
-    final uid = 'demo-0001';
-
-    Future<void> toggleRide() async {
-      if (!isRiding) {
-        final granted = await locService.requestPermissions();
-        if (!granted) {
-          setState(() => permDenied = true);
-          return;
-        }
-        setState(() => isRiding = true);
-        await locService.startTracking(userId: uid);
-        await FirebaseDatabase.instance
-          .ref('members/$uid/status')
-          .set('riding');
-      } else {
-        await locService.stopTracking(userId: uid);
-        await FirebaseDatabase.instance
-          .ref('members/$uid/status')
-          .set('stopped');
-        setState(() => isRiding = false);
-      }
-    }
+    final speedKmh = myLoc?.speed.round() ?? 0;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Live Map'),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isRiding ? Icons.stop_circle : Icons.play_circle_filled,
+              color: isRiding ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+              size: 28,
+            ),
+            onPressed: toggleRide,
+          ),
+        ],
       ),
       body: Stack(
         children: <Widget> [
@@ -86,8 +82,13 @@ class HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget> [
-                      const Text('🗺️', style: TextStyle(fontSize: 64)),
-                      const SizedBox(height: 8),
+                      const Text(
+                        '🗺️', 
+                        style: TextStyle(
+                          fontSize: 64,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
                       Text(
                         isRiding ? 'กำลังส่ง GPS Realtime...' : 'กด START เพื่อเริ่มแชร์ตำแหน่ง',
                         style: const TextStyle(
@@ -95,45 +96,98 @@ class HomeScreenState extends State<HomeScreen> {
                           fontSize: 16,
                         ),
                       ),
-                      const SizedBox(height: 20,),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          icon: Icon(
-                            isRiding ? Icons.stop_circle : Icons.play_circle_filled, 
-                            color: Color(0xFFFFFFFF), 
-                            size: 20,
-                          ),
-                          label: Text(
-                            isRiding ? 'STOP RIDE' : 'START RIDE',
-                            style: const TextStyle(
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30, 
+                          vertical: 10,
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: Icon(
+                              isRiding ? Icons.stop_circle : Icons.play_circle_filled, 
                               color: Color(0xFFFFFFFF), 
-                              fontSize: 18,
+                              size: 20,
                             ),
-                          ),
-                          onPressed: toggleRide,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isRiding ? const Color(0xFFEF4444) : const Color(0xFF10B981),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
+                            label: Text(
+                              isRiding ? 'STOP RIDE' : 'START RIDE',
+                              style: const TextStyle(
+                                color: Color(0xFFFFFFFF), 
+                                fontSize: 18,
+                              ),
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                            onPressed: toggleRide,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isRiding ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
                           ),
                         ),
                       ),
                       if (myLoc != null) ...[
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 5),
                         Text(
-                          '${myLoc.lat.toStringAsFixed(5)}, ${myLoc.lng.toStringAsFixed(5)}',
+                          'Lat: ${myLoc.lat.toStringAsFixed(5)}, Lng: ${myLoc.lng.toStringAsFixed(5)}',
                           style: const TextStyle(
                             color: Color(0xFF94A3B8), 
-                            fontSize: 11, 
+                            fontSize: 12, 
                             fontFamily: 'monospace',
                           ),
                         ),
                       ],
+                      if (myLoc != null) 
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget> [
+                            Text(
+                              '$speedKmh',
+                              style: TextStyle(
+                                fontSize: 16, 
+                                fontWeight: FontWeight.w900, 
+                                color: speedKmh > 120 ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
+                                fontVariations: const [FontVariation('wght', 900)],
+                              ),
+                            ),
+                            Text(
+                              ' KM/H', 
+                              style: const TextStyle(
+                                color: Color(0xFF94A3B8), 
+                                fontSize: 12, 
+                                letterSpacing: 1
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (myLoc != null) 
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget> [
+                            Text(
+                              'BATTERY: ', 
+                              style: const TextStyle(
+                                color: Color(0xFF94A3B8), 
+                                fontSize: 12, 
+                                letterSpacing: 1
+                              ),
+                            ),
+                            Text(
+                              '${myLoc.battery}%',
+                              style: TextStyle(
+                                fontSize: 12, 
+                                fontWeight: FontWeight.w900, 
+                                color: myLoc.battery < 20 ? const Color(0xFFEF4444) : const Color(0xFF94A3B8),
+                                fontVariations: const <FontVariation> [
+                                  FontVariation('wght', 800),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
@@ -141,9 +195,80 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
-      )
+      ),
     );
   
+  }
+
+  Future<String> getDeviceId() async {
+    
+    final prefs = await SharedPreferences.getInstance();
+    String? deviceId;
+
+    final String? cachedId = prefs.getString(deviceIdKey);
+    if (cachedId != null && cachedId.isNotEmpty) {
+      deviceId = cachedId;
+    } else {
+      deviceId = const Uuid().v4();
+      await prefs.setString(deviceIdKey, deviceId);
+    }
+
+    setState(() => uuid = deviceId);
+    return deviceId;
+  
+  }
+
+  Future<void> toggleRide() async {
+
+    String? uuid = await getDeviceId();
+    if (!mounted) return;
+
+    if (!isRiding) {
+
+      final granted = await locService.requestPermissions();
+
+      if (!granted) {
+        setState(() => permDenied = true);
+        return;
+      }
+
+      setState(() => isRiding = true);
+
+      await locService.startTracking(uuid: uuid.toString());
+      await FirebaseDatabase.instance
+        .ref('members/$uuid/status')
+        .set('riding');
+
+    } else {
+
+      setState(() => isRiding = false);
+
+      await locService.stopTracking(uuid: uuid.toString());
+      await FirebaseDatabase.instance
+        .ref('members/$uuid/status')
+        .set('stopped');
+
+    }
+  
+  }
+
+  void loadLocation() async {
+
+    String? uuid = await getDeviceId();
+    if (!mounted) return;
+
+    FirebaseDatabase.instance.ref('members/$uuid/realtimeLocation').onValue.listen((event) {
+      final locations = <LocationModel>[];
+      if (event.snapshot.exists) {
+        final data = event.snapshot.value as Map<dynamic, dynamic>;
+        data.forEach((key, value) {
+          final location = LocationModel.fromJson(key.toString(), value as Map);
+          locations.add(location);
+        });
+        locations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      }
+    });
+
   }
 
 }

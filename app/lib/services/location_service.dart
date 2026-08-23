@@ -44,7 +44,7 @@ class LocationService {
     return perm == LocationPermission.always || perm == LocationPermission.whileInUse;
   }
 
-  Future<void> onPosition(Position position, String userId) async {
+  Future<void> onPosition(Position position, String? uuid) async {
 
     if (position.accuracy > AppConfig.maxAccuracyMeters) return;
 
@@ -89,12 +89,12 @@ class LocationService {
     locationController.add(loc);
 
     await Future.wait([
-      writeCurrentLocation(userId, loc),
+      writeCurrentLocation(uuid, loc),
     ]);
 
   }
 
-  Future<void> startBackgroundTracking({ required String userId }) async {
+  Future<void> startBackgroundTracking({ required String uuid }) async {
     late LocationSettings locationSettings;
     if (defaultTargetPlatform == TargetPlatform.android) {
       // locationSettings = AndroidSettings(
@@ -126,12 +126,12 @@ class LocationService {
     positionSub = Geolocator.getPositionStream(
       locationSettings: locationSettings,
     ).listen((Position position) async {
-      await onPosition(position, userId);
+      await onPosition(position, uuid);
       print('Background Location: ${position.latitude}, ${position.longitude}');
     });
   }
 
-  Future<void> startTracking({ required String userId }) async {
+  Future<void> startTracking({ required String uuid }) async {
 
     // const settings = LocationSettings(
     //   accuracy: LocationAccuracy.high,
@@ -144,11 +144,11 @@ class LocationService {
     //   await onPosition(position, userId);
     // });
 
-    await startBackgroundTracking(userId: userId);
+    await startBackgroundTracking(uuid: uuid);
 
   }
 
-  Future<void> stopTracking({ required String userId }) async {
+  Future<void> stopTracking({ required String uuid }) async {
 
     await positionSub?.cancel();
 
@@ -162,14 +162,14 @@ class LocationService {
     //     'lastChanged': ServerValue.timestamp,
     //   });
 
-    await FirebaseDatabase.instance.ref('members/$userId/status').set('offline');
-    await FirebaseDatabase.instance.ref('members/$userId/lastChanged').set(ServerValue.timestamp);
+    await FirebaseDatabase.instance.ref('members/$uuid/status').set('offline');
+    await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);
 
   }
 
-  Future<void> writeCurrentLocation(String userId, LocationModel loc) async {
+  Future<void> writeCurrentLocation(String? uuid, LocationModel loc) async {
     await FirebaseDatabase.instance
-      .ref('members/$userId/realtimeLocation/${DateTime.now().millisecondsSinceEpoch}')
+      .ref('members/$uuid/realtimeLocation/${DateTime.now().millisecondsSinceEpoch}')
       .set(loc.toCurrentLocationJson());
   }
 
