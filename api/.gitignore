@@ -1,2 +1,9 @@
 !.gitignore
-node_modules/
+node_modules
+
+*.log
+
+.agents
+.claude
+
+skills-lock.json
