@@ -67,10 +67,13 @@
 			<string>UIInterfaceOrientationLandscapeRight</string>
 		</array>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>This app needs access to location when open.</string>
+		<string>This app needs access to your location to track your route.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>This app needs background access to update your live location.</string>
 		<key>UIBackgroundModes</key>
 		<array>
-			<string>location</string>
+				<string>location</string>
+				<string>fetch</string>
 		</array>
 	</dict>
 </plist>

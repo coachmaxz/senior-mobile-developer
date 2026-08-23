@@ -22,6 +22,8 @@ class HomeScreenState extends State<HomeScreen> {
   final locService = LocationService();
 
   LocationModel? myLocation;
+
+  bool isRiding = false;
   bool permDenied = false;
 
   @override
@@ -49,13 +51,24 @@ class HomeScreenState extends State<HomeScreen> {
     final uid = 'demo-0001';
 
     Future<void> toggleRide() async {
-      final granted = await locService.requestPermissions();
-      if (!granted) {
-        setState(() => permDenied = true);
-        return;
+      if (!isRiding) {
+        final granted = await locService.requestPermissions();
+        if (!granted) {
+          setState(() => permDenied = true);
+          return;
+        }
+        setState(() => isRiding = true);
+        await locService.startTracking(userId: uid);
+        await FirebaseDatabase.instance
+          .ref('members/$uid/status')
+          .set('riding');
+      } else {
+        await locService.stopTracking(userId: uid);
+        await FirebaseDatabase.instance
+          .ref('members/$uid/status')
+          .set('stopped');
+        setState(() => isRiding = false);
       }
-      await locService.startTracking(userId: uid);
-      await FirebaseDatabase.instance.ref('members/$uid/status').set('riding');
     }
 
     return Scaffold(
@@ -73,8 +86,10 @@ class HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget> [
+                      const Text('🗺️', style: TextStyle(fontSize: 64)),
+                      const SizedBox(height: 8),
                       Text(
-                        'กด START เพื่อเริ่มแชร์ตำแหน่ง',
+                        isRiding ? 'กำลังส่ง GPS Realtime...' : 'กด START เพื่อเริ่มแชร์ตำแหน่ง',
                         style: const TextStyle(
                           color: Color(0xFF94A3B8), 
                           fontSize: 16,
@@ -85,12 +100,12 @@ class HomeScreenState extends State<HomeScreen> {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           icon: Icon(
-                            Icons.play_circle_filled, 
+                            isRiding ? Icons.stop_circle : Icons.play_circle_filled, 
                             color: Color(0xFFFFFFFF), 
                             size: 20,
                           ),
                           label: Text(
-                            'START',
+                            isRiding ? 'STOP RIDE' : 'START RIDE',
                             style: const TextStyle(
                               color: Color(0xFFFFFFFF), 
                               fontSize: 18,
@@ -98,7 +113,7 @@ class HomeScreenState extends State<HomeScreen> {
                           ),
                           onPressed: toggleRide,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF10B981),
+                            backgroundColor: isRiding ? const Color(0xFFEF4444) : const Color(0xFF10B981),
                             padding: const EdgeInsets.symmetric(
                               vertical: 16,
                             ),
@@ -112,7 +127,11 @@ class HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 8),
                         Text(
                           '${myLoc.lat.toStringAsFixed(5)}, ${myLoc.lng.toStringAsFixed(5)}',
-                          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontFamily: 'monospace'),
+                          style: const TextStyle(
+                            color: Color(0xFF94A3B8), 
+                            fontSize: 11, 
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ],
                     ],
@@ -133,19 +152,14 @@ class MapGridPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-
     final paint = Paint()..color = const Color(0xFFF59E0B).withOpacity(0.04)..strokeWidth = 1;
-
     const gridSize = 40.0;
-
     for (double x = 0; x <= size.width; x += gridSize) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
-
     for (double y = 0; y <= size.height; y += gridSize) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
     }
-  
   }
 
   @override

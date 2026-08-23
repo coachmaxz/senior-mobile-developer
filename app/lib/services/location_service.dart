@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 // import 'dart:math';
 
 import 'package:geolocator/geolocator.dart';
@@ -43,10 +44,7 @@ class LocationService {
     return perm == LocationPermission.always || perm == LocationPermission.whileInUse;
   }
 
-  Future<void> onPosition(
-    Position position,
-    String userId,
-  ) async {
+  Future<void> onPosition(Position position, String userId) async {
 
     if (position.accuracy > AppConfig.maxAccuracyMeters) return;
 
@@ -96,21 +94,83 @@ class LocationService {
 
   }
 
+  Future<void> startBackgroundTracking({ required String userId }) async {
+    late LocationSettings locationSettings;
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      // locationSettings = AndroidSettings(
+      //   accuracy: LocationAccuracy.high,
+      //   distanceFilter: 5,
+      //   foregroundNotificationConfig: const ForegroundNotificationConfig(
+      //     notificationTitle: "Location Tracking Active",
+      //     notificationText: "Tracking route details in background.",
+      //     enableWifiLock: true,
+      //   ),
+      // );
+      locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5,
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      locationSettings = AppleSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5,
+        allowBackgroundLocationUpdates: true,
+        showBackgroundLocationIndicator: true,
+      );
+    } else {
+      locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5,
+      );
+    }
+    positionSub = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen((Position position) async {
+      await onPosition(position, userId);
+      print('Background Location: ${position.latitude}, ${position.longitude}');
+    });
+  }
+
   Future<void> startTracking({ required String userId }) async {
 
-    const settings = LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 5,
-    );
+    // const settings = LocationSettings(
+    //   accuracy: LocationAccuracy.high,
+    //   distanceFilter: 5,
+    // );
 
-    positionSub = Geolocator.getPositionStream(locationSettings: settings).listen((position) async {
-      await onPosition(position, userId);
-    });
+    // positionSub = Geolocator.getPositionStream(
+    //   locationSettings: settings
+    // ).listen((position) async {
+    //   await onPosition(position, userId);
+    // });
+
+    await startBackgroundTracking(userId: userId);
+
+  }
+
+  Future<void> stopTracking({ required String userId }) async {
+
+    await positionSub?.cancel();
+
+    positionSub = null;
+    lastPosition = null;
+
+    // await FirebaseDatabase.instance
+    //   .ref('members/$userId')
+    //   .set({
+    //     'status': 'offline', 
+    //     'lastChanged': ServerValue.timestamp,
+    //   });
+
+    await FirebaseDatabase.instance.ref('members/$userId/status').set('offline');
+    await FirebaseDatabase.instance.ref('members/$userId/lastChanged').set(ServerValue.timestamp);
 
   }
 
   Future<void> writeCurrentLocation(String userId, LocationModel loc) async {
-    await FirebaseDatabase.instance.ref('members/$userId/currentLocation').set(loc.toCurrentLocationJson());
+    await FirebaseDatabase.instance
+      .ref('members/$userId/realtimeLocation/${DateTime.now().millisecondsSinceEpoch}')
+      .set(loc.toCurrentLocationJson());
   }
 
 }
