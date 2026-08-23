@@ -274,7 +274,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> saveFcmToken() async {
-    String? fcmToken = await ShareLocalStorage().getStringData(deviceIdKey) ?? '';
+    String? fcmToken = await ShareLocalStorage().getStringData('fcmToken') ?? '';
     await FirebaseDatabase.instance.ref('members/$uuid/fcmToken').set(fcmToken);
   }
 
