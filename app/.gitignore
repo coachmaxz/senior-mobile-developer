@@ -44,3 +44,8 @@ app.*.map.json
 
 # Build
 build
+
+# AI
+.agents
+.claude
+skills-lock.json

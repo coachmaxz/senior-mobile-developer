@@ -26,5 +26,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:725529644795:ios:cd758f3512efb7aca7ea5e</string>
+	<key>DATABASE_URL</key>
+	<string>https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>

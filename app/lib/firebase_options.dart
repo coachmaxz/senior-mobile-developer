@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '725529644795',
     projectId: 'skyfrog-app-741d3',
     authDomain: 'skyfrog-app-741d3.firebaseapp.com',
+    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
     measurementId: 'G-V5GVQ3K3JP',
   );
@@ -55,6 +56,7 @@ class DefaultFirebaseOptions {
     appId: '1:725529644795:android:cd2fa5ad90222d53a7ea5e',
     messagingSenderId: '725529644795',
     projectId: 'skyfrog-app-741d3',
+    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
@@ -62,6 +64,7 @@ class DefaultFirebaseOptions {
     appId: '1:725529644795:ios:cd758f3512efb7aca7ea5e',
     messagingSenderId: '725529644795',
     projectId: 'skyfrog-app-741d3',
+    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
     iosBundleId: 'com.example.skyfrog',
   );
@@ -70,6 +73,7 @@ class DefaultFirebaseOptions {
     appId: '1:725529644795:ios:cd758f3512efb7aca7ea5e',
     messagingSenderId: '725529644795',
     projectId: 'skyfrog-app-741d3',
+    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
     iosBundleId: 'com.example.skyfrog',
   );
@@ -80,6 +84,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '725529644795',
     projectId: 'skyfrog-app-741d3',
     authDomain: 'skyfrog-app-741d3.firebaseapp.com',
+    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
     measurementId: 'G-XCRZ86YVEQ',
   );
