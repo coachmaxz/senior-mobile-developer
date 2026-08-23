@@ -1,9 +1,120 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
-admin.initializeApp();
-// const db = admin.database();
+import express from "express";
+import cors from "cors";
 
-export const helloWorld = functions.https.onCall(async (data, context) => {
-  return {success: true, status: "active", data: data, context: context};
+admin.initializeApp();
+
+const app = express();
+const db = admin.database();
+
+app.use(cors({origin: true}));
+
+app.get("/tracking/:uuid", async (req, res) => {
+  const realtimeLocation = await db.ref(`members/${req.params.uuid}/realtimeLocation`).once("value");
+  const locationLists: any = [];
+  if (realtimeLocation.exists()) {
+    const locationValues = realtimeLocation.val();
+    Object.values(locationValues).forEach((locationList: any) => {
+      locationLists.push({
+        "accuracy": locationList.accuracy ?? 0,
+        "altitude": locationList.altitude ?? 0,
+        "battery": locationList.battery ?? 0,
+        "heading": locationList.heading ?? 0,
+        "isMoving": locationList.isMoving ?? false,
+        "lat": locationList.lat ?? 0,
+        "lng": locationList.lng ?? 0,
+        "speed": locationList.speed ?? 0,
+        "timestamp": locationList.timestamp ?? 0,
+        "updatedAt": locationList.updatedAt ?? 0,
+      });
+    });
+  }
+  res.status(200).json({
+    status: 200,
+    message: "OK",
+    data: {
+      uuid: req.params.uuid,
+      locations: locationLists,
+    },
+  });
 });
+
+app.post("/tracking/:uuid", async (req, res) => {
+  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
+    res.status(500).json({
+      status: 500,
+      message: "SERVER ERROR",
+    });
+    return;
+  }
+  const now = Date.now();
+  await db.ref(`members/${req.params.uuid}`).update({
+    lastChanged: now,
+    status: "riding",
+  });
+  res.status(201).json({
+    status: 201,
+    message: "CREATED",
+    data: {
+      uuid: req.params.uuid,
+      location: location,
+    },
+  });
+});
+
+app.put("/tracking/:uuid", async (req, res) => {
+  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
+    res.status(500).json({
+      status: 500,
+      message: "SERVER ERROR",
+    });
+    return;
+  }
+  await db.ref(`members/${req.params.uuid}/realtimeLocation/${req.body.timestamp}`).set({
+    lat: req.body.lat ?? 0,
+    lng: req.body.lng ?? 0,
+    speed: req.body.speed ?? 0,
+    heading: req.body.heading ?? 0,
+    accuracy: req.body.accuracy ?? 0,
+    altitude: req.body.altitude ?? 0,
+    battery: req.body.battery ?? 0,
+    isMoving: req.body.isMoving ?? true,
+    timestamp: req.body.timestamp ?? 0,
+  });
+  const now = Date.now();
+  await db.ref(`members/${req.params.uuid}`).update({
+    lastChanged: now,
+    status: "online",
+  });
+  res.status(201).json({
+    status: 201,
+    message: "CREATED",
+    data: {
+      uuid: req.params.uuid,
+      location: location,
+    },
+  });
+});
+
+app.delete("/tracking/:uuid", async (req, res) => {
+  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
+    res.status(500).json({
+      status: 500,
+      message: "SERVER ERROR",
+    });
+    return;
+  }
+  const now = Date.now();
+  await db.ref(`members/${req.params.uuid}`).update({
+    lastChanged: now,
+    status: "stopped",
+  });
+  res.status(200).json({
+    status: 200,
+    message: "DELETED",
+  });
+});
+
+exports.api = functions.https.onRequest(app);
