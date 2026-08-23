@@ -91,9 +91,12 @@ class LocationService {
 
   }
 
-  Future<void> startBackgroundTracking({ required String uuid }) async {
+  Future<void> startTracking({ required String uuid }) async {
+
     late LocationSettings locationSettings;
+
     if (defaultTargetPlatform == TargetPlatform.android) {
+
       // locationSettings = AndroidSettings(
       //   accuracy: LocationAccuracy.high,
       //   distanceFilter: 5,
@@ -103,45 +106,36 @@ class LocationService {
       //     enableWifiLock: true,
       //   ),
       // );
+      
       locationSettings = const LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 5,
       );
+
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+
       locationSettings = AppleSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 5,
         allowBackgroundLocationUpdates: true,
         showBackgroundLocationIndicator: true,
       );
+
     } else {
+
       locationSettings = const LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 5,
       );
+      
     }
+
     positionSub = Geolocator.getPositionStream(
       locationSettings: locationSettings,
     ).listen((Position position) async {
       await onPosition(position, uuid);
       print('Background Location: ${position.latitude}, ${position.longitude}');
     });
-  }
-
-  Future<void> startTracking({ required String uuid }) async {
-
-    // const settings = LocationSettings(
-    //   accuracy: LocationAccuracy.high,
-    //   distanceFilter: 5,
-    // );
-
-    // positionSub = Geolocator.getPositionStream(
-    //   locationSettings: settings
-    // ).listen((position) async {
-    //   await onPosition(position, userId);
-    // });
-
-    await startBackgroundTracking(uuid: uuid);
 
   }
 
