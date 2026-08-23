@@ -1,53 +1,63 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-// import 'package:flutter/foundation.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-
-// import 'package:geolocator/geolocator.dart';
-// import 'package:geolocator_android/geolocator_android.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter_background_service/flutter_background_service.dart';
 
+import 'firebase_options.dart';
+import 'services/share_local_storage.dart';
+
 import 'screens/home_screen.dart';
 
-const notificationId = 888;
-const notificationChannelId = 'my_foreground';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  await initializeBackgroundService();
-  runApp(const MyApp());
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  RemoteNotification? notification = message.notification;
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await setupFirebaseMessaging();
+  if (notification != null) {
+    print('Nnotification: ${notification.toMap()}');
+    print('Title: ${notification.title}');
+    print('Body: ${notification.body}');
+    print('Data: ${message.data}');
+  }
+  print('Handling a background message ${message.messageId}');
 }
 
-Future<void> initializeBackgroundService() async {
-  // final service = FlutterBackgroundService();
-  // const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  //   notificationChannelId,d
-  //   'MY FOREGROUND SERVICE',
-  //   description: 'This channel is used for important notifications.',
-  //   importance: Importance.low, 
-  // );
-  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  // await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
-  // await service.configure(
-  //   androidConfiguration: AndroidConfiguration(
-  //     onStart: onStart, 
-  //     autoStart: true,
-  //     isForegroundMode: true,
-  //     notificationChannelId: notificationChannelId,
-  //     initialNotificationTitle: 'Background Service running',
-  //     initialNotificationContent: 'Initializing...',
-  //     foregroundServiceNotificationId: notificationId,
-  //   ),
-  //   iosConfiguration: IosConfiguration(
-  //     autoStart: true,
-  //     onForeground: onStart,
-  //     onBackground: onIosBackground,
-  //   ),
-  // );
+Future<void> setupFirebaseMessaging() async {
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: true,
+    sound: true,
+  );
+  print('User granted permission: ${settings.authorizationStatus}');
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+}
+
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  String? fcmToken = await FirebaseMessaging.instance.getToken() ?? '';
+  print('Firebase Cloud Messaging Token: $fcmToken');
+  await ShareLocalStorage().setStringData('fcmToken', fcmToken);
+
+  runApp(const MyApp());
+
 }
 
 @pragma('vm:entry-point')
@@ -72,10 +82,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mobile Developer',
+      title: 'GPS Tracking',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+        ),
+        useMaterial3: true,
       ),
       home: const MainPage(),
     );

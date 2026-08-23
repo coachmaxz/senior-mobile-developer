@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import 'package:uuid/uuid.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-// import '../../core/config/app_config.dart';
 
 import '../../services/location_service.dart';
+import '../../services/share_local_storage.dart';
+
 import '../../models/location_model.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -40,6 +39,7 @@ class HomeScreenState extends State<HomeScreen> {
       if (mounted) setState(() => myLocation = loc);
     });
     loadLocation();
+    saveFcmToken();
   }
 
   @override
@@ -203,15 +203,14 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<String> getDeviceId() async {
     
-    final prefs = await SharedPreferences.getInstance();
+    String? cachedId = await ShareLocalStorage().getStringData(deviceIdKey) ?? '';
     String? deviceId;
 
-    final String? cachedId = prefs.getString(deviceIdKey);
-    if (cachedId != null && cachedId.isNotEmpty) {
+    if (cachedId.isNotEmpty) {
       deviceId = cachedId;
     } else {
       deviceId = const Uuid().v4();
-      await prefs.setString(deviceIdKey, deviceId);
+      await ShareLocalStorage().setStringData(deviceIdKey, deviceId);
     }
 
     setState(() => uuid = deviceId);
@@ -252,7 +251,7 @@ class HomeScreenState extends State<HomeScreen> {
       loadLocation();
 
     }
-  
+
   }
 
   void loadLocation() async {
@@ -272,6 +271,11 @@ class HomeScreenState extends State<HomeScreen> {
       }
     });
 
+  }
+
+  Future<void> saveFcmToken() async {
+    String? fcmToken = await ShareLocalStorage().getStringData(deviceIdKey) ?? '';
+    await FirebaseDatabase.instance.ref('members/$uuid/fcmToken').set(fcmToken);
   }
 
 }
