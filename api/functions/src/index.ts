@@ -41,7 +41,7 @@ app.get("/tracking/:uuid", async (req, res) => {
   });
 });
 
-app.post("/tracking/:uuid", async (req, res) => {
+app.post("/tracking/start/:uuid", async (req, res) => {
   if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
     res.status(500).json({
       status: 500,
@@ -59,12 +59,11 @@ app.post("/tracking/:uuid", async (req, res) => {
     message: "CREATED",
     data: {
       uuid: req.params.uuid,
-      location: location,
     },
   });
 });
 
-app.put("/tracking/:uuid", async (req, res) => {
+app.post("/tracking/:uuid", async (req, res) => {
   if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
     res.status(500).json({
       status: 500,
@@ -93,12 +92,11 @@ app.put("/tracking/:uuid", async (req, res) => {
     message: "CREATED",
     data: {
       uuid: req.params.uuid,
-      location: location,
     },
   });
 });
 
-app.delete("/tracking/:uuid", async (req, res) => {
+app.put("/tracking/stop/:uuid", async (req, res) => {
   if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
     res.status(500).json({
       status: 500,
@@ -113,7 +111,7 @@ app.delete("/tracking/:uuid", async (req, res) => {
   });
   res.status(200).json({
     status: 200,
-    message: "DELETED",
+    message: "UPDATED",
   });
 });
 
