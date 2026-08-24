@@ -30,14 +30,14 @@ const isCheckByUuid = async (req: any, res: any) => {
 };
 
 const isCheckByAccessToken = async (req: any, res: any) => {
-  if (req.params.accessToken == null || req.params.accessToken == "" || req.params.accessToken == undefined) {
+  if (req.query.accessToken == null || req.query.accessToken == "" || req.query.accessToken == undefined) {
     res.status(403).json({
       status: 403,
       message: "FORBIDDEN",
     });
     return;
   }
-  if (req.params.accessToken != "cQoSR9GLJBPAknS11gNHHBk3iZ-ABceMgIY5JWaQ") {
+  if (req.query.accessToken != "cQoSR9GLJBPAknS11gNHHBk3iZ-ABceMgIY5JWaQ") {
     res.status(403).json({
       status: 403,
       message: "FORBIDDEN",
