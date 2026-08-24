@@ -1,1 +1,9 @@
 .DS_Store
+
+.agents
+.claude
+.firebase
+
+skills-lock.json
+
+!dist
