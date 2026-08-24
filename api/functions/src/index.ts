@@ -12,8 +12,8 @@ const db = admin.database();
 app.use(cors({origin: true}));
 
 const isCheckByUuid = async (req: any, res: any) => {
-  const checkUUID = await db.ref(`members/${req.params.uuid}/status`).once("value");
-  if (!checkUUID.exists()) {
+  const checkMember = await db.ref(`members/${req.params.uuid}`).once("value");
+  if (!checkMember.exists()) {
     res.status(404).json({
       status: 404,
       message: "NOT FOUND",
