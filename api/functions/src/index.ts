@@ -11,6 +11,71 @@ const db = admin.database();
 
 app.use(cors({origin: true}));
 
+app.get("/tracking/realtimeLocation/:uuid", async (req, res) => {
+  const realtimeLocation = await db.ref(`members/${req.params.uuid}/realtimeLocation`).once("value");
+  const locationLists: any = [];
+  if (realtimeLocation.exists()) {
+    const locationValues = realtimeLocation.val();
+    Object.values(locationValues).forEach((locationList: any) => {
+      locationLists.push({
+        "accuracy": locationList.accuracy ?? 0,
+        "altitude": locationList.altitude ?? 0,
+        "battery": locationList.battery ?? 0,
+        "heading": locationList.heading ?? 0,
+        "isMoving": locationList.isMoving ?? false,
+        "lat": locationList.lat ?? 0,
+        "lng": locationList.lng ?? 0,
+        "speed": locationList.speed ?? 0,
+        "timestamp": locationList.timestamp ?? 0,
+        "updatedAt": locationList.updatedAt ?? 0,
+      });
+    });
+  }
+  res.status(200).json({
+    status: 200,
+    message: "OK",
+    data: {
+      uuid: req.params.uuid,
+      realtimeLocation: locationLists,
+    },
+  });
+});
+
+app.get("/tracking/currentLocation/:uuid", async (req, res) => {
+  const currentLocation = await db.ref(`members/${req.params.uuid}/currentLocation`).once("value");
+  if (currentLocation.exists()) {
+    const locationValue: any = currentLocation.val();
+    const locationList: any = {
+      "accuracy": locationValue.accuracy ?? 0,
+      "altitude": locationValue.altitude ?? 0,
+      "battery": locationValue.battery ?? 0,
+      "heading": locationValue.heading ?? 0,
+      "isMoving": locationValue.isMoving ?? false,
+      "lat": locationValue.lat ?? 0,
+      "lng": locationValue.lng ?? 0,
+      "speed": locationValue.speed ?? 0,
+      "timestamp": locationValue.timestamp ?? 0,
+      "updatedAt": locationValue.updatedAt ?? 0,
+    };
+    res.status(200).json({
+      status: 200,
+      message: "OK",
+      data: {
+        uuid: req.params.uuid,
+        currentLocation: locationList,
+      },
+    });
+  }
+  res.status(200).json({
+    status: 200,
+    message: "OK",
+    data: {
+      uuid: req.params.uuid,
+      currentLocation: null,
+    },
+  });
+});
+
 app.get("/tracking/:uuid", async (req, res) => {
   const realtimeLocation = await db.ref(`members/${req.params.uuid}/realtimeLocation`).once("value");
   const locationLists: any = [];
@@ -36,7 +101,7 @@ app.get("/tracking/:uuid", async (req, res) => {
     message: "OK",
     data: {
       uuid: req.params.uuid,
-      locations: locationLists,
+      realtimeLocation: locationLists,
     },
   });
 });
