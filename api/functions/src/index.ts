@@ -134,8 +134,8 @@ app.post("/tracking/start/:uuid", async (req: any, res: any) => {
   const now = Date.now();
   const bodyParams = {
     ...convertTrackingToJSON(req.body.location),
-    uuid: req.body,
-    trackingId: req.body.trackingId,
+    uuid: req.params.uuid,
+    trackingId: req.params.trackingId,
   };
   await db.ref(`members/${req.params.uuid}`).update({
     currentLocation: bodyParams,
@@ -157,12 +157,13 @@ app.post("/tracking/start/:uuid", async (req: any, res: any) => {
 
 app.post("/tracking/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
+  const now = Date.now();
+  const trackingId = req.body.trackingId ?? now;
   const bodyParams = {
     ...convertTrackingToJSON(req.body.location),
     uuid: req.params.uuid,
+    trackingId: trackingId,
   };
-  const now = Date.now();
-  const trackingId = req.body.trackingId ?? now;
   await db.ref(`members/${req.params.uuid}`).update({
     currentLocation: bodyParams,
     lastChanged: now,
@@ -186,11 +187,13 @@ app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const now = Date.now();
   const bodyParams = {
-    ...convertTrackingToJSON(req.body),
+    ...convertTrackingToJSON(req.body.location),
     uuid: req.params.uuid,
+    trackingId: req.body.trackingId,
   };
   await db.ref(`members/${req.params.uuid}`).update({
     currentLocation: bodyParams,
+    lastTrackingId: req.body.trackingId,
     lastChanged: now,
   });
   res.status(200).json({
