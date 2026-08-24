@@ -59,6 +59,8 @@ app.post("/tracking/start/:uuid", async (req, res) => {
     message: "CREATED",
     data: {
       uuid: req.params.uuid,
+      lastChanged: now,
+      status: "riding",
     },
   });
 });
@@ -71,7 +73,7 @@ app.post("/tracking/:uuid", async (req, res) => {
     });
     return;
   }
-  await db.ref(`members/${req.params.uuid}/realtimeLocation/${req.body.timestamp}`).set({
+  const bodyParams: any = {
     lat: req.body.lat ?? 0,
     lng: req.body.lng ?? 0,
     speed: req.body.speed ?? 0,
@@ -81,9 +83,11 @@ app.post("/tracking/:uuid", async (req, res) => {
     battery: req.body.battery ?? 0,
     isMoving: req.body.isMoving ?? true,
     timestamp: req.body.timestamp ?? 0,
-  });
+  };
+  await db.ref(`members/${req.params.uuid}/realtimeLocation/${req.body.timestamp}`).set(bodyParams);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
+    currentLocation: bodyParams,
     lastChanged: now,
     status: "online",
   });
@@ -92,6 +96,68 @@ app.post("/tracking/:uuid", async (req, res) => {
     message: "CREATED",
     data: {
       uuid: req.params.uuid,
+      body: bodyParams,
+      lastChanged: now,
+      status: "online",
+    },
+  });
+});
+
+app.put("/tracking/currentLocation/:uuid", async (req, res) => {
+  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
+    res.status(500).json({
+      status: 500,
+      message: "SERVER ERROR",
+    });
+    return;
+  }
+  const bodyParams: any = {
+    lat: req.body.lat ?? 0,
+    lng: req.body.lng ?? 0,
+    speed: req.body.speed ?? 0,
+    heading: req.body.heading ?? 0,
+    accuracy: req.body.accuracy ?? 0,
+    altitude: req.body.altitude ?? 0,
+    battery: req.body.battery ?? 0,
+    isMoving: req.body.isMoving ?? true,
+    timestamp: req.body.timestamp ?? 0,
+  };
+  const now = Date.now();
+  await db.ref(`members/${req.params.uuid}`).update({
+    currentLocation: bodyParams,
+    lastChanged: now,
+  });
+  res.status(200).json({
+    status: 200,
+    message: "UPDATED",
+    data: {
+      uuid: req.params.uuid,
+      body: bodyParams,
+      lastChanged: now,
+    },
+  });
+});
+
+app.put("/tracking/presence/:uuid", async (req, res) => {
+  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
+    res.status(500).json({
+      status: 500,
+      message: "SERVER ERROR",
+    });
+    return;
+  }
+  const now = Date.now();
+  await db.ref(`members/${req.params.uuid}`).update({
+    lastChanged: now,
+    status: "online",
+  });
+  res.status(200).json({
+    status: 200,
+    message: "UPDATED",
+    data: {
+      uuid: req.params.uuid,
+      lastChanged: now,
+      status: "online",
     },
   });
 });
