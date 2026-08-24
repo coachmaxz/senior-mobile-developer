@@ -11,7 +11,28 @@ const db = admin.database();
 
 app.use(cors({origin: true}));
 
+const isCheckUUID = async (req: any, res: any) => {
+  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
+    res.status(500).json({
+      status: 500,
+      message: "SERVER ERROR",
+    });
+    return false;
+  } else {
+    const checkUUID = await db.ref(`members/${req.params.uuid}/status`).once("value");
+    if (!checkUUID.exists()) {
+      res.status(404).json({
+        status: 404,
+        message: "NOT FOUND",
+      });
+      return false;
+    }
+  }
+  return true;
+};
+
 app.get("/tracking/realtimeLocation/:uuid", async (req, res) => {
+  await isCheckUUID(req, res);
   const realtimeLocation = await db.ref(`members/${req.params.uuid}/realtimeLocation`).once("value");
   const locationLists: any = [];
   if (realtimeLocation.exists()) {
@@ -42,6 +63,7 @@ app.get("/tracking/realtimeLocation/:uuid", async (req, res) => {
 });
 
 app.get("/tracking/currentLocation/:uuid", async (req, res) => {
+  await isCheckUUID(req, res);
   const currentLocation = await db.ref(`members/${req.params.uuid}/currentLocation`).once("value");
   if (currentLocation.exists()) {
     const locationValue: any = currentLocation.val();
@@ -77,6 +99,7 @@ app.get("/tracking/currentLocation/:uuid", async (req, res) => {
 });
 
 app.get("/tracking/:uuid", async (req, res) => {
+  await isCheckUUID(req, res);
   const realtimeLocation = await db.ref(`members/${req.params.uuid}/realtimeLocation`).once("value");
   const locationLists: any = [];
   if (realtimeLocation.exists()) {
@@ -107,13 +130,7 @@ app.get("/tracking/:uuid", async (req, res) => {
 });
 
 app.post("/tracking/start/:uuid", async (req, res) => {
-  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
-    res.status(500).json({
-      status: 500,
-      message: "SERVER ERROR",
-    });
-    return;
-  }
+  await isCheckUUID(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     lastChanged: now,
@@ -131,13 +148,7 @@ app.post("/tracking/start/:uuid", async (req, res) => {
 });
 
 app.post("/tracking/:uuid", async (req, res) => {
-  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
-    res.status(500).json({
-      status: 500,
-      message: "SERVER ERROR",
-    });
-    return;
-  }
+  await isCheckUUID(req, res);
   const bodyParams: any = {
     lat: req.body.lat ?? 0,
     lng: req.body.lng ?? 0,
@@ -169,13 +180,7 @@ app.post("/tracking/:uuid", async (req, res) => {
 });
 
 app.put("/tracking/currentLocation/:uuid", async (req, res) => {
-  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
-    res.status(500).json({
-      status: 500,
-      message: "SERVER ERROR",
-    });
-    return;
-  }
+  await isCheckUUID(req, res);
   const bodyParams: any = {
     lat: req.body.lat ?? 0,
     lng: req.body.lng ?? 0,
@@ -204,13 +209,7 @@ app.put("/tracking/currentLocation/:uuid", async (req, res) => {
 });
 
 app.put("/tracking/presence/:uuid", async (req, res) => {
-  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
-    res.status(500).json({
-      status: 500,
-      message: "SERVER ERROR",
-    });
-    return;
-  }
+  await isCheckUUID(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     lastChanged: now,
@@ -228,13 +227,7 @@ app.put("/tracking/presence/:uuid", async (req, res) => {
 });
 
 app.put("/tracking/fcmToken/:uuid", async (req, res) => {
-  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
-    res.status(500).json({
-      status: 500,
-      message: "SERVER ERROR",
-    });
-    return;
-  }
+  await isCheckUUID(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     fcmToken: req.body.fcmToken ?? "",
@@ -252,13 +245,7 @@ app.put("/tracking/fcmToken/:uuid", async (req, res) => {
 });
 
 app.put("/tracking/stop/:uuid", async (req, res) => {
-  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
-    res.status(500).json({
-      status: 500,
-      message: "SERVER ERROR",
-    });
-    return;
-  }
+  await isCheckUUID(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     lastChanged: now,
