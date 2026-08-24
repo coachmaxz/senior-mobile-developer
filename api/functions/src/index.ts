@@ -18,12 +18,29 @@ const isCheckByUuid = async (req: any, res: any) => {
       message: "FORBIDDEN",
     });
     return;
-  } 
+  }
   const checkMember = await db.ref(`members/${req.params.uuid}`).once("value");
   if (!checkMember.exists()) {
     res.status(404).json({
       status: 404,
       message: "NOT FOUND",
+    });
+    return;
+  }
+};
+
+const isCheckByAccessToken = async (req: any, res: any) => {
+  if (req.params.accessToken == null || req.params.accessToken == "" || req.params.accessToken == undefined) {
+    res.status(403).json({
+      status: 403,
+      message: "FORBIDDEN",
+    });
+    return;
+  }
+  if (req.params.accessToken != "cQoSR9GLJBPAknS11gNHHBk3iZ-ABceMgIY5JWaQ") {
+    res.status(403).json({
+      status: 403,
+      message: "FORBIDDEN",
     });
     return;
   }
@@ -253,13 +270,7 @@ app.put("/tracking/stop/:uuid", async (req: any, res: any) => {
 // ========================================================
 
 app.get("/member/lists", async (req: any, res: any) => {
-  if (req.query.accessToken == null || req.query.accessToken == "" || req.query.accessToken == undefined) {
-    res.status(403).json({
-      status: 403,
-      message: "FORBIDDEN",
-    });
-    return;
-  } 
+  await isCheckByAccessToken(req, res);
   const memberData = await db.ref("members").once("value");
   const memberLists: any = [];
   if (memberData.exists()) {
