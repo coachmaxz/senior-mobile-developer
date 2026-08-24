@@ -51,7 +51,10 @@ app.get("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
     message: "OK",
     data: (
       currentLocation.exists() ?
-      convertTrackingToJSON(currentLocation.val()) :
+      {
+        ...convertTrackingToJSON(currentLocation.val()),
+        uuid: req.params.uuid,
+      } :
       null
     ),
   });
@@ -156,8 +159,7 @@ app.post("/tracking/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const bodyParams = {
     ...convertTrackingToJSON(req.body.location),
-    uuid: req.body,
-    trackingId: req.body.trackingId,
+    uuid: req.params.uuid,
   };
   const now = Date.now();
   const trackingId = req.body.trackingId ?? now;
@@ -185,7 +187,7 @@ app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
   const now = Date.now();
   const bodyParams = {
     ...convertTrackingToJSON(req.body),
-    uuid: req.body,
+    uuid: req.params.uuid,
   };
   await db.ref(`members/${req.params.uuid}`).update({
     currentLocation: bodyParams,
