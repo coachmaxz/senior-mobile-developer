@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
+import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
 // import 'package:firebase_database/firebase_database.dart';
 
@@ -10,6 +11,7 @@ import '/core/config/app_config.dart';
 import '/models/location_model.dart';
 
 import '/services/reastful_api.dart';
+import '/services/share_local_storage.dart';
 
 class LocationService {
 
@@ -27,6 +29,9 @@ class LocationService {
   Position? lastPosition;
   int lastWriteMs = 0;
 
+  static String? trackingId = '';
+  static const String trackingIdKey = 'trackingId';
+
   void dispose() {
     positionSub?.cancel();
     locationController.close();
@@ -41,7 +46,24 @@ class LocationService {
     return perm == LocationPermission.always || perm == LocationPermission.whileInUse;
   }
 
-  Future<void> onPosition(Position position, String? uuid) async {
+  Future<String> getTrackingId() async {
+    
+    String? trackingIdNew;
+    String? cachedId = await ShareLocalStorage().getStringData(trackingIdKey) ?? '';
+
+    if (cachedId.isNotEmpty) {
+      trackingIdNew = cachedId;
+    } else {
+      trackingIdNew = const Uuid().v4();
+      trackingIdNew = '${DateTime.now().millisecondsSinceEpoch}-$trackingIdNew';
+      await ShareLocalStorage().setStringData(trackingIdKey, trackingIdNew);
+    }
+    
+    return trackingIdNew;
+  
+  }
+
+  Future<void> onPosition(Position position, String? uuid, String? trackingIdNew) async {
 
     if (position.accuracy > AppConfig.maxAccuracyMeters) return;
 
@@ -86,10 +108,8 @@ class LocationService {
     locationController.add(loc);
 
     await Future.wait([
-      postStartTracking(uuid, loc),
-      writeRealtimeLocation(uuid, loc),
-      // writeCurrentLocation(uuid, loc),
-      // updatePresence(uuid),
+      postStartTracking(uuid, trackingIdNew, loc),
+      writeRealtimeLocation(uuid, trackingIdNew, loc),
     ]);
 
   }
@@ -135,10 +155,12 @@ class LocationService {
       
     }
 
+    String? trackingIdNew = await getTrackingId();
+
     positionSub = Geolocator.getPositionStream(
       locationSettings: locationSettings,
     ).listen((Position position) async {
-      await onPosition(position, uuid);
+      await onPosition(position, uuid, trackingIdNew);
       print('Background Location: ${position.latitude}, ${position.longitude}');
     });
 
@@ -146,20 +168,26 @@ class LocationService {
 
   Future<void> stopTracking({ required String uuid }) async {
 
+    String? trackingIdNew = await getTrackingId();
+
     await positionSub?.cancel();
+    await ShareLocalStorage().removeStringData(trackingIdKey);
 
     positionSub = null;
     lastPosition = null;
 
     await Future.wait([
-      putStopTracking(uuid),
+      putStopTracking(uuid, trackingIdNew),
     ]);
 
   }
 
-  Future<void> writeRealtimeLocation(String? uuid, LocationModel loc) async {
+  Future<void> writeRealtimeLocation(String? uuid, String? trackingIdNew, LocationModel loc) async {
     print('POST: Realtime Location');
-    Map<String, dynamic> res = await RESTfulAPI().post('/tracking/${uuid.toString()}', loc.toLocationJson(), {});
+    Map<String, dynamic> res = await RESTfulAPI().post('/tracking/${uuid.toString()}', {
+      "trackingId": trackingIdNew,
+      "location": loc.toLocationJson(),
+    }, {});
     if ((res['status'] == 200 || res['status'] == 201) && res['data']['message'] == 'CREATED') {
       print('POST: Realtime Location (CREATED)');
     }
@@ -168,30 +196,12 @@ class LocationService {
     //   .set(loc.toLocationJson());
   }
 
-  Future<void> writeCurrentLocation(String? uuid, LocationModel loc) async {
-    print('PUT: Current Location');
-    Map<String, dynamic> res = await RESTfulAPI().put('/tracking/currentLocation/${uuid.toString()}', loc.toLocationJson(), {});
-    if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
-      print('PUT: Current Location (UPDATED)');
-    }
-    // await FirebaseDatabase.instance
-    //   .ref('members/$uuid/currentLocation')
-    //   .set(loc.toLocationJson());
-  }
-
-  Future<void> updatePresence(String? uuid) async {
-    print('PUT: Update Presence');
-    Map<String, dynamic> res = await RESTfulAPI().put('/tracking/presence/${uuid.toString()}', {}, {});
-    if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
-      print('PUT: Update Presence (UPDATED)');
-    }
-    // await FirebaseDatabase.instance.ref('members/$uuid/status').set('online');
-    // await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);
-  }
-
-  Future<void> postStartTracking(String? uuid, LocationModel loc) async {
+  Future<void> postStartTracking(String? uuid, String? trackingIdNew, LocationModel loc) async {
     print('POST: Start Tracking');
-    Map<String, dynamic> res = await RESTfulAPI().post('/tracking/start/${uuid.toString()}', loc.toLocationJson(), {});
+    Map<String, dynamic> res = await RESTfulAPI().post('/tracking/start/${uuid.toString()}', {
+      "trackingId": trackingIdNew,
+      "location": loc.toLocationJson(),
+    }, {});
     if ((res['status'] == 200 || res['status'] == 201) && res['data']['message'] == 'CREATED') {
       print('POST: Start Tracking (CREATED)');
     }
@@ -199,9 +209,11 @@ class LocationService {
     // await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);
   }
 
-  Future<void> putStopTracking(String? uuid) async {
+  Future<void> putStopTracking(String? uuid, String? trackingIdNew) async {
     print('PUT: Stop Tracking');
-    Map<String, dynamic> res = await RESTfulAPI().put('/tracking/stop/${uuid.toString()}', {}, {});
+    Map<String, dynamic> res = await RESTfulAPI().put('/tracking/stop/${uuid.toString()}', {
+      "trackingId": trackingIdNew,
+    }, {});
     if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
       print('PUT: Stop Tracking (UPDATED)');
     }
