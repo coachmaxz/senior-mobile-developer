@@ -164,7 +164,7 @@ app.put("/tracking/stop/:uuid", async (req: any, res: any) => {
     data: {
       lastChanged: now,
       status: "stopped",
-    }
+    },
   });
 });
 
