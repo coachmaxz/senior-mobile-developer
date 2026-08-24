@@ -201,7 +201,7 @@ class LocationService {
 
   Future<void> putStopTracking(String? uuid) async {
     print('PUT: Stop Tracking');
-    Map<String, dynamic> res = await RESTfulAPI().post('/tracking/stop/${uuid.toString()}', {}, {});
+    Map<String, dynamic> res = await RESTfulAPI().put('/tracking/stop/${uuid.toString()}', {}, {});
     if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
       print('PUT: Stop Tracking (UPDATED)');
     }
