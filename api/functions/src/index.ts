@@ -12,6 +12,13 @@ const db = admin.database();
 app.use(cors({origin: true}));
 
 const isCheckByUuid = async (req: any, res: any) => {
+  if (req.params.uuid == null || req.params.uuid == "" || req.params.uuid == undefined) {
+    res.status(403).json({
+      status: 403,
+      message: "FORBIDDEN",
+    });
+    return;
+  } 
   const checkMember = await db.ref(`members/${req.params.uuid}`).once("value");
   if (!checkMember.exists()) {
     res.status(404).json({
@@ -246,6 +253,13 @@ app.put("/tracking/stop/:uuid", async (req: any, res: any) => {
 // ========================================================
 
 app.get("/member/lists", async (req: any, res: any) => {
+  if (req.query.accessToken == null || req.query.accessToken == "" || req.query.accessToken == undefined) {
+    res.status(403).json({
+      status: 403,
+      message: "FORBIDDEN",
+    });
+    return;
+  } 
   const memberData = await db.ref("members").once("value");
   const memberLists: any = [];
   if (memberData.exists()) {
