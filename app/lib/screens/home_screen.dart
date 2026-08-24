@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
+// import 'package:firebase_database/firebase_database.dart';
 
 import 'package:uuid/uuid.dart';
 
@@ -41,7 +41,7 @@ class HomeScreenState extends State<HomeScreen> {
       print('Stream Location: ${loc.lat}, ${loc.lng}');
       setState(() => myLocation = loc);
     });
-    loadLocation();
+    getFetchLocation();
   }
 
   @override
@@ -246,28 +246,35 @@ class HomeScreenState extends State<HomeScreen> {
       setState(() => isTracking = false);
       setState(() => myLocation = null);
 
-      loadLocation();
+      getFetchLocation();
 
     }
 
   }
 
-  Future<void> loadLocation() async {
+  Future<void> getFetchLocation() async {
 
     String? uuid = await getDeviceId();
     if (!mounted) return;
 
-    FirebaseDatabase.instance.ref('members/$uuid/realtimeLocation').onValue.listen((event) {
-      final locations = <LocationModel>[];
-      if (event.snapshot.exists) {
-        final data = event.snapshot.value as Map<dynamic, dynamic>;
-        data.forEach((key, value) {
-          final location = LocationModel.fromJson(key.toString(), value as Map);
-          locations.add(location);
-        });
-        locations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      }
-    });
+    print('GET: Fetch Location');
+    Map<String, dynamic> res = await RESTfulAPI().get('/tracking/realtimeLocation/${uuid.toString()}', {});
+    if ((res['status'] == 200) && res['data']['message'] == 'OK') {
+      print('GET: Fetch Location (OK)');
+      print(res['data']['data']);
+    }
+
+    // FirebaseDatabase.instance.ref('members/$uuid/realtimeLocation').onValue.listen((event) {
+    //   final locations = <LocationModel>[];
+    //   if (event.snapshot.exists) {
+    //     final data = event.snapshot.value as Map<dynamic, dynamic>;
+    //     data.forEach((key, value) {
+    //       final location = LocationModel.fromJson(key.toString(), value as Map);
+    //       locations.add(location);
+    //     });
+    //     locations.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    //   }
+    // });
 
   }
 
