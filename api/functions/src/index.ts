@@ -104,15 +104,15 @@ app.post("/tracking/:uuid", async (req: any, res: any) => {
     lastTrackingId: trackingId,
     status: "online",
   });
-  const ref = db.ref(`trackings/${req.params.uuid}/realtimeLocation/${trackingId}`);
-  const newItemRef = await ref.push(bodyParams);
+  const ref = db.ref(`trackings/${req.params.uuid}/realtimeLocation/${trackingId}/${now}`);
+  await ref.set(bodyParams);
   res.status(201).json({
     status: 201,
     message: "CREATED",
     data: {
       uuid: req.params.uuid,
       trackingId: trackingId,
-      key: newItemRef.key,
+      key: now,
       status: "online",
       ...bodyParams,
     },
