@@ -258,10 +258,16 @@ class HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
 
     print('GET: Fetch Location');
+
     Map<String, dynamic> res = await RESTfulAPI().get('/tracking/realtimeLocation/${uuid.toString()}', {});
     if ((res['status'] == 200) && res['data']['message'] == 'OK') {
       print('GET: Fetch Location (OK)');
-      print(res['data']['data']);
+      if (res['data']['data']['realtimeLocation'].length > 0) {
+        List<LocationModel> locations = [];
+        for (Map<String, dynamic> location in res['data']['data']['realtimeLocation']) {
+          locations.add(LocationModel.fromJson(location));
+        }
+      }
     }
 
     // FirebaseDatabase.instance.ref('members/$uuid/realtimeLocation').onValue.listen((event) {

@@ -39,7 +39,7 @@ class LocationModel {
     'updatedAt': DateTime.now().millisecondsSinceEpoch,
   };
 
-  factory LocationModel.fromJson(String id, Map<dynamic, dynamic> json) {
+  factory LocationModel.fromJson(Map<String, dynamic> json) {
     return LocationModel(
       lat: json['name'] as double? ?? 0,
       lng: json['name'] as double? ?? 0,
