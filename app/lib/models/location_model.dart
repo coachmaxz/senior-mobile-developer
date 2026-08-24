@@ -26,7 +26,7 @@ class LocationModel {
     required this.timestamp,
   });
 
-  Map<String, dynamic> toCurrentLocationJson() => {
+  Map<String, dynamic> toLocationJson() => {
     'lat': lat,
     'lng': lng,
     'speed': speed,
@@ -37,15 +37,6 @@ class LocationModel {
     'isMoving': isMoving,
     'timestamp': timestamp,
     'updatedAt': DateTime.now().millisecondsSinceEpoch,
-  };
-
-  Map<String, dynamic> toHistoryJson() => {
-    'lat': lat,
-    'lng': lng,
-    'speed': speed,
-    'heading': heading,
-    'accuracy': accuracy,
-    'timestamp': timestamp,
   };
 
   factory LocationModel.fromJson(String id, Map<dynamic, dynamic> json) {

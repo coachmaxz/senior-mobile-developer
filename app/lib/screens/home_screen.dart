@@ -3,10 +3,11 @@ import 'package:firebase_database/firebase_database.dart';
 
 import 'package:uuid/uuid.dart';
 
-import '../../services/location_service.dart';
-import '../../services/share_local_storage.dart';
+// import '/services/reastful_api.dart';
+import '/services/location_service.dart';
+import '/services/share_local_storage.dart';
 
-import '../../models/location_model.dart';
+import '/models/location_model.dart';
 
 class HomeScreen extends StatefulWidget {
 
@@ -28,18 +29,19 @@ class HomeScreenState extends State<HomeScreen> {
   bool isTracking = false;
   bool permDenied = false;
 
-  static String? uuid = 'demo';
-  static const String deviceIdKey = 'device_id';
+  static String? uuid = 'uuid';
+  static const String deviceIdKey = 'deviceId';
 
   @override
   void initState() {
     super.initState();
     getDeviceId();
-    locService.locationStream.listen((loc) {
-      if (mounted) setState(() => myLocation = loc);
+    saveFcmToken();
+    locService.locationStream.listen((LocationModel loc) {
+      print('Stream Location: ${loc.lat}, ${loc.lng}');
+      setState(() => myLocation = loc);
     });
     loadLocation();
-    saveFcmToken();
   }
 
   @override
@@ -133,7 +135,7 @@ class HomeScreenState extends State<HomeScreen> {
                       if (myLoc != null) ...[
                         const SizedBox(height: 5),
                         Text(
-                          'Lat: ${myLoc.lat.toStringAsFixed(5)}, Lng: ${myLoc.lng.toStringAsFixed(5)}',
+                          'Lat: ${myLoc.lat}, Lng: ${myLoc.lng}',
                           style: const TextStyle(
                             color: Color(0xFF94A3B8), 
                             fontSize: 12, 
@@ -220,33 +222,32 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> toggleRide() async {
 
+    print('Toggle Ride');
+
     String? uuid = await getDeviceId();
     if (!mounted) return;
 
     if (!isTracking) {
 
-      final granted = await locService.requestPermissions();
+      print('Tracking: START');
 
-      if (!granted) {
-        setState(() => permDenied = true);
-        return;
-      }
+      final granted = await locService.requestPermissions();
+      if (!granted) { setState(() => permDenied = true); return; }
+
+      await locService.startTracking(uuid: uuid.toString());
+      await postStartRide(uuid, myLocation);
 
       setState(() => isTracking = true);
 
-      await locService.startTracking(uuid: uuid.toString());
-      await FirebaseDatabase.instance
-        .ref('members/$uuid/status')
-        .set('riding');
-
     } else {
 
-      setState(() => isTracking = false);
+      print('Tracking: STOP');
 
       await locService.stopTracking(uuid: uuid.toString());
-      await FirebaseDatabase.instance
-        .ref('members/$uuid/status')
-        .set('stopped');
+      await putStopRide(uuid, myLocation);
+
+      setState(() => isTracking = false);
+      setState(() => myLocation = null);
 
       loadLocation();
 
@@ -254,7 +255,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   }
 
-  void loadLocation() async {
+  Future<void> loadLocation() async {
 
     String? uuid = await getDeviceId();
     if (!mounted) return;
@@ -276,6 +277,24 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> saveFcmToken() async {
     String? fcmToken = await ShareLocalStorage().getStringData('fcmToken') ?? '';
     await FirebaseDatabase.instance.ref('members/$uuid/fcmToken').set(fcmToken);
+  }
+
+  Future<void> postStartRide(String? uuid, LocationModel? loc) async {
+    print(loc);
+    if (loc == null) { return; }
+    // Map<String, dynamic> res = await RESTfulAPI().post('/tracking/start/${uuid.toString()}', loc.toCurrentLocationJson(), {});
+    // if ((res['status'] == 200 || res['status'] == 201) && res['data']['status'] && res['data']['message'] == 'CREATED') {
+    // }
+    // await FirebaseDatabase.instance.ref('members/$uuid/status').set('riding');
+  }
+
+  Future<void> putStopRide(String? uuid, LocationModel? loc) async {
+    print(loc);
+    if (loc == null) { return; }
+    // Map<String, dynamic> res = await RESTfulAPI().put('/tracking/stop/${uuid.toString()}', loc.toCurrentLocationJson(), {});
+    // if ((res['status'] == 200) && res['data']['status'] && res['data']['message'] == 'UPDATED') {
+    // }
+    // await FirebaseDatabase.instance.ref('members/$uuid/status').set('stopped');
   }
 
 }

@@ -7,10 +7,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter_background_service/flutter_background_service.dart';
 
-import 'firebase_options.dart';
-import 'services/share_local_storage.dart';
+import '/firebase_options.dart';
+import '/services/share_local_storage.dart';
 
-import 'screens/home_screen.dart';
+import '/screens/home_screen.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
