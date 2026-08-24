@@ -77,15 +77,17 @@ app.post("/tracking/start/:uuid", async (req: any, res: any) => {
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     lastChanged: now,
+    lastTrackingId: req.body.trackingId ?? null,
     status: "riding",
   });
-  await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).remove();
+  // await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).remove();
   res.status(201).json({
     status: 201,
     message: "CREATED",
     data: {
       uuid: req.params.uuid,
       lastChanged: now,
+      trackingId: req.body.trackingId ?? null,
       status: "riding",
     },
   });
@@ -93,20 +95,23 @@ app.post("/tracking/start/:uuid", async (req: any, res: any) => {
 
 app.post("/tracking/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
-  const bodyParams = convertTrackingToJSON(req.body);
+  const bodyParams = convertTrackingToJSON(req.body.location);
   const now = Date.now();
+  const trackingId = req.body.trackingId ?? now;
   await db.ref(`members/${req.params.uuid}`).update({
     currentLocation: bodyParams,
     lastChanged: now,
+    lastTrackingId: trackingId,
     status: "online",
   });
-  const ref = db.ref(`trackings/${req.params.uuid}/realtimeLocation`);
+  const ref = db.ref(`trackings/${req.params.uuid}/realtimeLocation/${trackingId}`);
   const newItemRef = await ref.push(bodyParams);
   res.status(201).json({
     status: 201,
     message: "CREATED",
     data: {
       uuid: req.params.uuid,
+      trackingId: trackingId,
       key: newItemRef.key,
       status: "online",
       ...bodyParams,
