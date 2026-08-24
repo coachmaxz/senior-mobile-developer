@@ -135,7 +135,7 @@ app.post("/tracking/start/:uuid", async (req: any, res: any) => {
   const bodyParams = {
     ...convertTrackingToJSON(req.body.location),
     uuid: req.params.uuid,
-    trackingId: req.params.trackingId,
+    trackingId: req.body.trackingId,
   };
   await db.ref(`members/${req.params.uuid}`).update({
     currentLocation: bodyParams,
