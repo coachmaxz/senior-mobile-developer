@@ -32,7 +32,8 @@ const isCheckUUID = async (req: any, res: any) => {
 };
 
 app.get("/tracking/realtimeLocation/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
+  const isCheckEmpty = await isCheckUUID(req, res);
+  if (!isCheckEmpty) { return; }
   const realtimeLocation = await db.ref(`members/${req.params.uuid}/realtimeLocation`).once("value");
   const locationLists: any = [];
   if (realtimeLocation.exists()) {
@@ -63,7 +64,8 @@ app.get("/tracking/realtimeLocation/:uuid", async (req, res) => {
 });
 
 app.get("/tracking/currentLocation/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
+  const isCheckEmpty = await isCheckUUID(req, res);
+  if (!isCheckEmpty) { return; }
   const currentLocation = await db.ref(`members/${req.params.uuid}/currentLocation`).once("value");
   if (currentLocation.exists()) {
     const locationValue: any = currentLocation.val();
@@ -99,7 +101,8 @@ app.get("/tracking/currentLocation/:uuid", async (req, res) => {
 });
 
 app.get("/tracking/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
+  const isCheckEmpty = await isCheckUUID(req, res);
+  if (!isCheckEmpty) { return; }
   const realtimeLocation = await db.ref(`members/${req.params.uuid}/realtimeLocation`).once("value");
   const locationLists: any = [];
   if (realtimeLocation.exists()) {
@@ -130,11 +133,11 @@ app.get("/tracking/:uuid", async (req, res) => {
 });
 
 app.post("/tracking/start/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
+  const isCheckEmpty = await isCheckUUID(req, res);
+  if (!isCheckEmpty) { return; }
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     lastChanged: now,
-    realtimeLocation: [],
     status: "riding",
   });
   res.status(201).json({
@@ -149,7 +152,8 @@ app.post("/tracking/start/:uuid", async (req, res) => {
 });
 
 app.post("/tracking/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
+  const isCheckEmpty = await isCheckUUID(req, res);
+  if (!isCheckEmpty) { return; }
   const bodyParams: any = {
     lat: req.body.lat ?? 0,
     lng: req.body.lng ?? 0,
@@ -161,13 +165,13 @@ app.post("/tracking/:uuid", async (req, res) => {
     isMoving: req.body.isMoving ?? true,
     timestamp: req.body.timestamp ?? 0,
   };
-  await db.ref(`members/${req.params.uuid}/realtimeLocation/${req.body.timestamp}`).set(bodyParams);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     currentLocation: bodyParams,
     lastChanged: now,
     status: "online",
   });
+  await db.ref(`members/${req.params.uuid}/realtimeLocation/${req.body.timestamp}`).set(bodyParams);
   res.status(201).json({
     status: 201,
     message: "CREATED",
@@ -181,7 +185,8 @@ app.post("/tracking/:uuid", async (req, res) => {
 });
 
 app.put("/tracking/currentLocation/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
+  const isCheckEmpty = await isCheckUUID(req, res);
+  if (!isCheckEmpty) { return; }
   const bodyParams: any = {
     lat: req.body.lat ?? 0,
     lng: req.body.lng ?? 0,
@@ -210,7 +215,8 @@ app.put("/tracking/currentLocation/:uuid", async (req, res) => {
 });
 
 app.put("/tracking/presence/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
+  const isCheckEmpty = await isCheckUUID(req, res);
+  if (!isCheckEmpty) { return; }
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     lastChanged: now,
@@ -228,7 +234,8 @@ app.put("/tracking/presence/:uuid", async (req, res) => {
 });
 
 app.put("/tracking/fcmToken/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
+  const isCheckEmpty = await isCheckUUID(req, res);
+  if (!isCheckEmpty) { return; }
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     fcmToken: req.body.fcmToken ?? "",
