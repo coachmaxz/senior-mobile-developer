@@ -183,6 +183,7 @@ class LocationService {
 
   Future<void> writeRealtimeLocation(String? uuid, String? trackingIdNew, LocationModel loc) async {
     Map<String, dynamic> res = await RESTfulAPI().post('/tracking/${uuid.toString()}', {
+      "uuid": uuid,
       "trackingId": trackingIdNew,
       "location": loc.toLocationJson(),
     }, {});
@@ -194,8 +195,23 @@ class LocationService {
     //   .set(loc.toLocationJson());
   }
 
+  Future<void> writeCurrentLocation(String? uuid, String? trackingIdNew, LocationModel loc) async {
+    Map<String, dynamic> res = await RESTfulAPI().put('/tracking/currentLocation/${uuid.toString()}', {
+      "uuid": uuid,
+      "trackingId": trackingIdNew,
+      "location": loc.toLocationJson(),
+    }, {});
+    if (res['status'] == 200 && res['data']['message'] == 'UPDATED') {
+      // print('POST: Realtime Location (CREATED)');
+    }
+    // await FirebaseDatabase.instance
+    //   .ref('members/$uuid/realtimeLocation/${DateTime.now().millisecondsSinceEpoch}')
+    //   .set(loc.toLocationJson());
+  }
+
   Future<void> postStartTracking(String? uuid, String? trackingIdNew, LocationModel loc) async {
     Map<String, dynamic> res = await RESTfulAPI().post('/tracking/start/${uuid.toString()}', {
+      "uuid": uuid,
       "trackingId": trackingIdNew,
       "location": loc.toLocationJson(),
     }, {});
@@ -208,6 +224,7 @@ class LocationService {
 
   Future<void> putStopTracking(String? uuid, String? trackingIdNew) async {
     Map<String, dynamic> res = await RESTfulAPI().put('/tracking/stop/${uuid.toString()}', {
+      "uuid": uuid,
       "trackingId": trackingIdNew,
     }, {});
     if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
