@@ -76,11 +76,11 @@ app.post("/tracking/start/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
+    currentLocation: req.body.location ?? {},
     lastChanged: now,
     lastTrackingId: req.body.trackingId ?? null,
     status: "riding",
   });
-  // await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).remove();
   res.status(201).json({
     status: 201,
     message: "CREATED",
