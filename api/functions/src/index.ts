@@ -114,6 +114,25 @@ app.post("/tracking/:uuid", async (req: any, res: any) => {
   });
 });
 
+app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
+  await isCheckByUuid(req, res);
+  const now = Date.now();
+  const bodyParams = convertTrackingToJSON(req.body);
+  await db.ref(`members/${req.params.uuid}`).update({
+    currentLocation: bodyParams,
+    lastChanged: now,
+  });
+  res.status(200).json({
+    status: 200,
+    message: "UPDATED",
+    data: {
+      uuid: req.params.uuid,
+      lastChanged: now,
+      ...bodyParams,
+    },
+  });
+});
+
 // ========================================================
 // Member
 // ========================================================
@@ -129,36 +148,6 @@ app.get("/member/:uuid", async (req: any, res: any) => {
 });
 
 /*
-
-app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
-  await isCheckUUID(req, res);
-  const bodyParams: any = {
-    lat: req.body.lat ?? 0,
-    lng: req.body.lng ?? 0,
-    speed: req.body.speed ?? 0,
-    heading: req.body.heading ?? 0,
-    accuracy: req.body.accuracy ?? 0,
-    altitude: req.body.altitude ?? 0,
-    battery: req.body.battery ?? 0,
-    isMoving: req.body.isMoving ?? true,
-    timestamp: req.body.timestamp ?? 0,
-  };
-  const now = Date.now();
-  await db.ref(`members/${req.params.uuid}`).update({
-    currentLocation: bodyParams,
-    lastChanged: now,
-  });
-  res.status(200).json({
-    status: 200,
-    message: "UPDATED",
-    data: {
-      uuid: req.params.uuid,
-      body: bodyParams,
-      lastChanged: now,
-    },
-  });
-});
-
 app.put("/tracking/presence/:uuid", async (req: any, res: any) => {
   await isCheckUUID(req, res);
   const now = Date.now();
