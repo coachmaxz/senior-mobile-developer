@@ -1,5 +1,8 @@
 class LocationModel {
 
+  final String uuid;
+  final String trackingId;
+
   final double lat;
   final double lng;
 
@@ -15,6 +18,8 @@ class LocationModel {
   final int timestamp;
 
   const LocationModel({
+    required this.uuid,
+    required this.trackingId,
     required this.lat,
     required this.lng,
     required this.speed,
@@ -27,6 +32,8 @@ class LocationModel {
   });
 
   Map<String, dynamic> toLocationJson() => {
+    'uuid': uuid,
+    'trackingId': trackingId,
     'lat': lat,
     'lng': lng,
     'speed': speed,
@@ -41,6 +48,8 @@ class LocationModel {
 
   factory LocationModel.fromJson(Map<String, dynamic> json) {
     return LocationModel(
+      uuid: json['uuid'] as String? ?? "",
+      trackingId: json['trackingId'] as String? ?? "",
       lat: json['name'] as double? ?? 0,
       lng: json['name'] as double? ?? 0,
       speed: json['name'] as double? ?? 0,

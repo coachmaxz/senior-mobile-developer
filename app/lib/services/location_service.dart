@@ -91,6 +91,8 @@ class LocationService {
 
     final speedKmh = (position.speed * 3.6).clamp(0, 300).toDouble();
     final loc = LocationModel(
+      uuid: uuid.toString(),
+      trackingId: trackingIdNew.toString(),
       lat: position.latitude,
       lng: position.longitude,
       speed: speedKmh,
