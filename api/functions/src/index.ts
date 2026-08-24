@@ -245,6 +245,25 @@ app.put("/tracking/stop/:uuid", async (req: any, res: any) => {
 // Member
 // ========================================================
 
+app.get("/member/lists", async (req: any, res: any) => {
+  const memberData = await db.ref("members").once("value");
+  const memberLists: any = [];
+  if (memberData.exists()) {
+    const memberValues = memberData.val();
+    Object.keys(memberValues).forEach((memberKey: any) => {
+      memberLists.push({
+        uuid: req.params.uuid,
+        ...memberValues[memberKey],
+      });
+    });
+  }
+  res.status(200).json({
+    status: 200,
+    message: "OK",
+    data: memberLists,
+  });
+});
+
 app.get("/member/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const memberData = await db.ref(`members/${req.params.uuid}`).once("value");
