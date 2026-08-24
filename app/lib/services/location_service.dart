@@ -116,8 +116,6 @@ class LocationService {
 
   Future<void> startTracking({ required String uuid }) async {
 
-    print('Start Tracking');
-
     late LocationSettings locationSettings;
 
     if (defaultTargetPlatform == TargetPlatform.android) {
@@ -161,7 +159,6 @@ class LocationService {
       locationSettings: locationSettings,
     ).listen((Position position) async {
       await onPosition(position, uuid, trackingIdNew);
-      print('Background Location: ${position.latitude}, ${position.longitude}');
     });
 
   }
@@ -183,13 +180,12 @@ class LocationService {
   }
 
   Future<void> writeRealtimeLocation(String? uuid, String? trackingIdNew, LocationModel loc) async {
-    print('POST: Realtime Location');
     Map<String, dynamic> res = await RESTfulAPI().post('/tracking/${uuid.toString()}', {
       "trackingId": trackingIdNew,
       "location": loc.toLocationJson(),
     }, {});
     if ((res['status'] == 200 || res['status'] == 201) && res['data']['message'] == 'CREATED') {
-      print('POST: Realtime Location (CREATED)');
+      // print('POST: Realtime Location (CREATED)');
     }
     // await FirebaseDatabase.instance
     //   .ref('members/$uuid/realtimeLocation/${DateTime.now().millisecondsSinceEpoch}')
@@ -197,25 +193,23 @@ class LocationService {
   }
 
   Future<void> postStartTracking(String? uuid, String? trackingIdNew, LocationModel loc) async {
-    print('POST: Start Tracking');
     Map<String, dynamic> res = await RESTfulAPI().post('/tracking/start/${uuid.toString()}', {
       "trackingId": trackingIdNew,
       "location": loc.toLocationJson(),
     }, {});
     if ((res['status'] == 200 || res['status'] == 201) && res['data']['message'] == 'CREATED') {
-      print('POST: Start Tracking (CREATED)');
+      // print('POST: Start Tracking (CREATED)');
     }
     // await FirebaseDatabase.instance.ref('members/$uuid/status').set('riding');
     // await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);
   }
 
   Future<void> putStopTracking(String? uuid, String? trackingIdNew) async {
-    print('PUT: Stop Tracking');
     Map<String, dynamic> res = await RESTfulAPI().put('/tracking/stop/${uuid.toString()}', {
       "trackingId": trackingIdNew,
     }, {});
     if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
-      print('PUT: Stop Tracking (UPDATED)');
+      // print('PUT: Stop Tracking (UPDATED)');
     }
     // await FirebaseDatabase.instance.ref('members/$uuid/status').set('offline');
     // await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);

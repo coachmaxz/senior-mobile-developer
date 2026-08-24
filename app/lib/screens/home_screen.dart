@@ -29,7 +29,7 @@ class HomeScreenState extends State<HomeScreen> {
   bool isTracking = false;
   bool permDenied = false;
 
-  static String? uuid = 'uuid';
+  static String? uuid = '';
   static const String deviceIdKey = 'deviceId';
 
   @override
@@ -38,7 +38,6 @@ class HomeScreenState extends State<HomeScreen> {
     getDeviceId();
     putFcmToken();
     locService.locationStream.listen((LocationModel loc) {
-      print('Stream Location: ${loc.lat}, ${loc.lng}');
       setState(() => myLocation = loc);
     });
     getFetchLocation();
@@ -222,26 +221,20 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> toggleRide() async {
 
-    print('Toggle Ride');
-
-    String? uuid = await getDeviceId();
+    String? deviceId = await getDeviceId();
     if (!mounted) return;
 
     if (!isTracking) {
 
-      print('Tracking: START');
-
       final granted = await locService.requestPermissions();
       if (!granted) { setState(() => permDenied = true); return; }
 
-      await locService.startTracking(uuid: uuid.toString());
+      await locService.startTracking(uuid: deviceId.toString());
       setState(() => isTracking = true);
 
     } else {
 
-      print('Tracking: STOP');
-
-      await locService.stopTracking(uuid: uuid.toString());
+      await locService.stopTracking(uuid: deviceId.toString());
 
       setState(() => isTracking = false);
       setState(() => myLocation = null);
@@ -254,14 +247,12 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> getFetchLocation() async {
 
-    String? uuid = await getDeviceId();
+    String? deviceId = await getDeviceId();
     if (!mounted) return;
 
-    print('GET: Fetch Location');
-
-    Map<String, dynamic> res = await RESTfulAPI().get('/tracking/${uuid.toString()}', {});
+    Map<String, dynamic> res = await RESTfulAPI().get('/tracking/${deviceId.toString()}', {});
     if ((res['status'] == 200) && res['data']['message'] == 'OK') {
-      print('GET: Fetch Location (OK)');
+      // print('GET: Fetch Location (OK)');
       if (res['data']['data'].length > 0) {
         List<LocationModel> locations = [];
         for (Map<String, dynamic> location in res['data']['data']) {
@@ -286,12 +277,11 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> putFcmToken() async {
     String? fcmToken = await ShareLocalStorage().getStringData('fcmToken') ?? '';
-    print('PUT: Save FCM Token');
     Map<String, dynamic> res = await RESTfulAPI().put('/member/fcmToken/${uuid.toString()}', {
       'fcmToken': fcmToken,
     }, {});
     if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
-      print('PUT: Save FCM Token (UPDATED)');
+      // print('PUT: Save FCM Token (UPDATED)');
     }
     // await FirebaseDatabase.instance.ref('members/$uuid/fcmToken').set(fcmToken);
   }
