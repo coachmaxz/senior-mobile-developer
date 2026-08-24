@@ -133,23 +133,8 @@ app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
   });
 });
 
-// ========================================================
-// Member
-// ========================================================
-
-app.get("/member/:uuid", async (req: any, res: any) => {
-  await isCheckByUuid(req, res);
-  const memberData = await db.ref(`members/${req.params.uuid}`).once("value");
-  res.status(200).json({
-    status: 200,
-    message: "OK",
-    data: memberData,
-  });
-});
-
-/*
 app.put("/tracking/presence/:uuid", async (req: any, res: any) => {
-  await isCheckUUID(req, res);
+  await isCheckByUuid(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     lastChanged: now,
@@ -166,8 +151,39 @@ app.put("/tracking/presence/:uuid", async (req: any, res: any) => {
   });
 });
 
-app.put("/tracking/fcmToken/:uuid", async (req: any, res: any) => {
-  await isCheckUUID(req, res);
+app.put("/tracking/stop/:uuid", async (req: any, res: any) => {
+  await isCheckByUuid(req, res);
+  const now = Date.now();
+  await db.ref(`members/${req.params.uuid}`).update({
+    lastChanged: now,
+    status: "stopped",
+  });
+  res.status(200).json({
+    status: 200,
+    message: "UPDATED",
+    data: {
+      lastChanged: now,
+      status: "stopped",
+    }
+  });
+});
+
+// ========================================================
+// Member
+// ========================================================
+
+app.get("/member/:uuid", async (req: any, res: any) => {
+  await isCheckByUuid(req, res);
+  const memberData = await db.ref(`members/${req.params.uuid}`).once("value");
+  res.status(200).json({
+    status: 200,
+    message: "OK",
+    data: memberData,
+  });
+});
+
+app.put("/member/fcmToken/:uuid", async (req: any, res: any) => {
+  await isCheckByUuid(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
     fcmToken: req.body.fcmToken ?? "",
@@ -183,19 +199,5 @@ app.put("/tracking/fcmToken/:uuid", async (req: any, res: any) => {
     },
   });
 });
-
-app.put("/tracking/stop/:uuid", async (req: any, res: any) => {
-  await isCheckUUID(req, res);
-  const now = Date.now();
-  await db.ref(`members/${req.params.uuid}`).update({
-    lastChanged: now,
-    status: "stopped",
-  });
-  res.status(200).json({
-    status: 200,
-    message: "UPDATED",
-  });
-});
-*/
 
 exports.api = functions.https.onRequest(app);
