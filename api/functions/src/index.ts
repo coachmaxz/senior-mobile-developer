@@ -68,6 +68,7 @@ const convertTrackingToJSON = (data: any) => {
 // ========================================================
 
 app.get("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const currentLocation = await db.ref(`members/${req.params.uuid}/currentLocation`).once("value");
   res.status(200).json({
@@ -85,6 +86,7 @@ app.get("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
 });
 
 app.get("/tracking/lists/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).once("value");
   const locationLists: any = [];
@@ -106,6 +108,7 @@ app.get("/tracking/lists/:uuid", async (req: any, res: any) => {
 });
 
 app.get("/tracking/detail/:uuid/:trackingId", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation/${req.params.trackingId}`).once("value");
   const locationLists: any = [];
@@ -127,6 +130,7 @@ app.get("/tracking/detail/:uuid/:trackingId", async (req: any, res: any) => {
 });
 
 app.get("/tracking/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).once("value");
   const locationLists: any = [];
@@ -154,6 +158,7 @@ app.get("/tracking/:uuid", async (req: any, res: any) => {
 });
 
 app.post("/tracking/start/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
   const bodyParams = {
@@ -180,6 +185,7 @@ app.post("/tracking/start/:uuid", async (req: any, res: any) => {
 });
 
 app.post("/tracking/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
   const trackingId = req.body.trackingId ?? now;
@@ -208,6 +214,7 @@ app.post("/tracking/:uuid", async (req: any, res: any) => {
 });
 
 app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
   const bodyParams = {
@@ -231,6 +238,7 @@ app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
 });
 
 app.put("/tracking/presence/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
@@ -249,6 +257,7 @@ app.put("/tracking/presence/:uuid", async (req: any, res: any) => {
 });
 
 app.put("/tracking/stop/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
@@ -290,6 +299,7 @@ app.get("/member/lists", async (req: any, res: any) => {
 });
 
 app.get("/member/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const memberData = await db.ref(`members/${req.params.uuid}`).once("value");
   res.status(200).json({
@@ -300,6 +310,7 @@ app.get("/member/:uuid", async (req: any, res: any) => {
 });
 
 app.put("/member/fcmToken/:uuid", async (req: any, res: any) => {
+  await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
