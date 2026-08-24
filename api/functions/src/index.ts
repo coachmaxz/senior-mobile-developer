@@ -286,7 +286,7 @@ app.get("/member/lists", async (req: any, res: any) => {
     const memberValues = memberData.val();
     Object.keys(memberValues).forEach((memberKey: any) => {
       memberLists.push({
-        uuid: req.params.uuid,
+        uuid: memberKey,
         ...memberValues[memberKey],
       });
     });
