@@ -24,6 +24,8 @@ const isCheckByUuid = async (req: any, res: any) => {
 
 const convertTrackingToJSON = (data: any) => {
   return {
+    uuid: data.uuid ?? null,
+    trackingId: data.trackingId ?? null,
     accuracy: data.accuracy ?? 0,
     altitude: data.altitude ?? 0,
     battery: data.battery ?? 0,
@@ -55,14 +57,66 @@ app.get("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
   });
 });
 
+app.get("/tracking/lists/:uuid", async (req: any, res: any) => {
+  await isCheckByUuid(req, res);
+  const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).once("value");
+  const locationLists: any = [];
+  if (realtimeLocation.exists()) {
+    const locationValues = realtimeLocation.val();
+    Object.keys(locationValues).forEach((trackingId: any) => {
+      locationLists.push({
+        uuid: req.params.uuid,
+        trackingId: trackingId,
+        locationCount: Object.keys(locationValues[trackingId]).length ?? 0,
+      });
+    });
+  }
+  res.status(200).json({
+    status: 200,
+    message: "OK",
+    data: locationLists,
+  });
+});
+
+app.get("/tracking/detail/:uuid/:trackingId", async (req: any, res: any) => {
+  await isCheckByUuid(req, res);
+  const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation/${req.params.trackingId}`).once("value");
+  const locationLists: any = [];
+  if (realtimeLocation.exists()) {
+    const locationValues = realtimeLocation.val();
+    Object.values(locationValues).forEach((locationList: any) => {
+      locationLists.push({
+        ...convertTrackingToJSON(locationList),
+        uuid: req.params.uuid,
+        trackingId: req.params.trackingId ?? "",
+      });
+    });
+  }
+  res.status(200).json({
+    status: 200,
+    message: "OK",
+    data: locationLists,
+  });
+});
+
 app.get("/tracking/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).once("value");
   const locationLists: any = [];
   if (realtimeLocation.exists()) {
     const locationValues = realtimeLocation.val();
-    Object.values(locationValues).forEach((locationList: any) => {
-      locationLists.push(convertTrackingToJSON(locationList));
+    Object.keys(locationValues).forEach((trackingId: any) => {
+      locationLists.push({
+        uuid: req.params.uuid,
+        trackingId: trackingId,
+        locationLists: Object.values(locationValues[trackingId]).map((localtion: any) => {
+          return {
+            ...convertTrackingToJSON(localtion),
+            uuid: req.params.uuid,
+            trackingId: trackingId,
+          };
+        }),
+      });
     });
   }
   res.status(200).json({
@@ -75,8 +129,13 @@ app.get("/tracking/:uuid", async (req: any, res: any) => {
 app.post("/tracking/start/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const now = Date.now();
+  const bodyParams = {
+    ...convertTrackingToJSON(req.body.location),
+    uuid: req.body,
+    trackingId: req.body.trackingId,
+  };
   await db.ref(`members/${req.params.uuid}`).update({
-    currentLocation: req.body.location ?? {},
+    currentLocation: bodyParams,
     lastChanged: now,
     lastTrackingId: req.body.trackingId ?? null,
     status: "riding",
@@ -95,7 +154,11 @@ app.post("/tracking/start/:uuid", async (req: any, res: any) => {
 
 app.post("/tracking/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
-  const bodyParams = convertTrackingToJSON(req.body.location);
+  const bodyParams = {
+    ...convertTrackingToJSON(req.body.location),
+    uuid: req.body,
+    trackingId: req.body.trackingId,
+  };
   const now = Date.now();
   const trackingId = req.body.trackingId ?? now;
   await db.ref(`members/${req.params.uuid}`).update({
@@ -110,8 +173,6 @@ app.post("/tracking/:uuid", async (req: any, res: any) => {
     status: 201,
     message: "CREATED",
     data: {
-      uuid: req.params.uuid,
-      trackingId: trackingId,
       key: now,
       status: "online",
       ...bodyParams,
@@ -122,7 +183,10 @@ app.post("/tracking/:uuid", async (req: any, res: any) => {
 app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const now = Date.now();
-  const bodyParams = convertTrackingToJSON(req.body);
+  const bodyParams = {
+    ...convertTrackingToJSON(req.body),
+    uuid: req.body,
+  };
   await db.ref(`members/${req.params.uuid}`).update({
     currentLocation: bodyParams,
     lastChanged: now,
@@ -131,7 +195,6 @@ app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
     status: 200,
     message: "UPDATED",
     data: {
-      uuid: req.params.uuid,
       lastChanged: now,
       ...bodyParams,
     },
