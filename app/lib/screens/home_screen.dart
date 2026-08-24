@@ -3,7 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 
 import 'package:uuid/uuid.dart';
 
-// import '/services/reastful_api.dart';
+import '/services/reastful_api.dart';
 import '/services/location_service.dart';
 import '/services/share_local_storage.dart';
 
@@ -36,7 +36,7 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     getDeviceId();
-    saveFcmToken();
+    putFcmToken();
     locService.locationStream.listen((LocationModel loc) {
       print('Stream Location: ${loc.lat}, ${loc.lng}');
       setState(() => myLocation = loc);
@@ -235,8 +235,6 @@ class HomeScreenState extends State<HomeScreen> {
       if (!granted) { setState(() => permDenied = true); return; }
 
       await locService.startTracking(uuid: uuid.toString());
-      await postStartRide(uuid, myLocation);
-
       setState(() => isTracking = true);
 
     } else {
@@ -244,7 +242,6 @@ class HomeScreenState extends State<HomeScreen> {
       print('Tracking: STOP');
 
       await locService.stopTracking(uuid: uuid.toString());
-      await putStopRide(uuid, myLocation);
 
       setState(() => isTracking = false);
       setState(() => myLocation = null);
@@ -274,27 +271,16 @@ class HomeScreenState extends State<HomeScreen> {
 
   }
 
-  Future<void> saveFcmToken() async {
+  Future<void> putFcmToken() async {
     String? fcmToken = await ShareLocalStorage().getStringData('fcmToken') ?? '';
-    await FirebaseDatabase.instance.ref('members/$uuid/fcmToken').set(fcmToken);
-  }
-
-  Future<void> postStartRide(String? uuid, LocationModel? loc) async {
-    print(loc);
-    if (loc == null) { return; }
-    // Map<String, dynamic> res = await RESTfulAPI().post('/tracking/start/${uuid.toString()}', loc.toCurrentLocationJson(), {});
-    // if ((res['status'] == 200 || res['status'] == 201) && res['data']['status'] && res['data']['message'] == 'CREATED') {
-    // }
-    // await FirebaseDatabase.instance.ref('members/$uuid/status').set('riding');
-  }
-
-  Future<void> putStopRide(String? uuid, LocationModel? loc) async {
-    print(loc);
-    if (loc == null) { return; }
-    // Map<String, dynamic> res = await RESTfulAPI().put('/tracking/stop/${uuid.toString()}', loc.toCurrentLocationJson(), {});
-    // if ((res['status'] == 200) && res['data']['status'] && res['data']['message'] == 'UPDATED') {
-    // }
-    // await FirebaseDatabase.instance.ref('members/$uuid/status').set('stopped');
+    print('PUT: Save FCM Token');
+    Map<String, dynamic> res = await RESTfulAPI().put('/tracking/fcmToken/${uuid.toString()}', {
+      'fcmToken': fcmToken,
+    }, {});
+    if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
+      print('PUT: Save FCM Token (UPDATED)');
+    }
+    // await FirebaseDatabase.instance.ref('members/$uuid/fcmToken').set(fcmToken);
   }
 
 }

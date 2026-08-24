@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import 'package:geolocator/geolocator.dart';
-import 'package:firebase_database/firebase_database.dart';
+// import 'package:firebase_database/firebase_database.dart';
 
 import 'package:battery_plus/battery_plus.dart';
 
@@ -151,8 +151,9 @@ class LocationService {
     positionSub = null;
     lastPosition = null;
 
-    await FirebaseDatabase.instance.ref('members/$uuid/status').set('offline');
-    await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);
+    await Future.wait([
+      putStopTracking(uuid),
+    ]);
 
   }
 
@@ -194,14 +195,18 @@ class LocationService {
     if ((res['status'] == 200 || res['status'] == 201) && res['data']['message'] == 'CREATED') {
       print('POST: Start Tracking (CREATED)');
     }
+    // await FirebaseDatabase.instance.ref('members/$uuid/status').set('riding');
+    // await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);
   }
 
-  Future<void> postStopTracking(String? uuid, LocationModel loc) async {
-    print('POST: Stop Tracking');
-    Map<String, dynamic> res = await RESTfulAPI().post('/tracking/stop/${uuid.toString()}', loc.toLocationJson(), {});
-    if ((res['status'] == 200 || res['status'] == 201) && res['data']['message'] == 'CREATED') {
-      print('POST: Stop Tracking (UPDATE)');
+  Future<void> putStopTracking(String? uuid) async {
+    print('PUT: Stop Tracking');
+    Map<String, dynamic> res = await RESTfulAPI().post('/tracking/stop/${uuid.toString()}', {}, {});
+    if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
+      print('PUT: Stop Tracking (UPDATED)');
     }
+    // await FirebaseDatabase.instance.ref('members/$uuid/status').set('offline');
+    // await FirebaseDatabase.instance.ref('members/$uuid/lastChanged').set(ServerValue.timestamp);
   }
 
 }
