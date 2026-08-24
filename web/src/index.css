@@ -51,26 +51,10 @@
 body { margin: 0; }
 
 #root {
+  margin: 0 auto;
   width: 1126px;
   max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  height: calc(100svh - 48px);
 }
 
-h1 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
+.h-screen { margin: 1rem 0; height: calc(100svh - 48px); }
