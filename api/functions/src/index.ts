@@ -41,7 +41,21 @@ const convertTrackingToJSON = (data: any) => {
 // Tracking
 // ========================================================
 
-app.get("/tracking/realtimeLocation/:uuid", async (req, res) => {
+app.get("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
+  await isCheckByUuid(req, res);
+  const currentLocation = await db.ref(`members/${req.params.uuid}/currentLocation`).once("value");
+  res.status(200).json({
+    status: 200,
+    message: "OK",
+    data: (
+      currentLocation.exists() ?
+      convertTrackingToJSON(currentLocation.val()) :
+      null
+    ),
+  });
+});
+
+app.get("/tracking/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).once("value");
   const locationLists: any = [];
@@ -54,14 +68,11 @@ app.get("/tracking/realtimeLocation/:uuid", async (req, res) => {
   res.status(200).json({
     status: 200,
     message: "OK",
-    data: {
-      uuid: req.params.uuid,
-      realtimeLocation: locationLists,
-    },
+    data: locationLists,
   });
 });
 
-app.post("/tracking/start/:uuid", async (req, res) => {
+app.post("/tracking/start/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
@@ -80,7 +91,7 @@ app.post("/tracking/start/:uuid", async (req, res) => {
   });
 });
 
-app.post("/tracking/:uuid", async (req, res) => {
+app.post("/tracking/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const bodyParams = convertTrackingToJSON(req.body);
   const now = Date.now();
@@ -96,10 +107,9 @@ app.post("/tracking/:uuid", async (req, res) => {
     message: "CREATED",
     data: {
       uuid: req.params.uuid,
-      newKey: newItemRef.key,
-      body: bodyParams,
-      lastChanged: now,
+      key: newItemRef.key,
       status: "online",
+      ...bodyParams,
     },
   });
 });
@@ -108,7 +118,7 @@ app.post("/tracking/:uuid", async (req, res) => {
 // Member
 // ========================================================
 
-app.get("/member/:uuid", async (req, res) => {
+app.get("/member/:uuid", async (req: any, res: any) => {
   await isCheckByUuid(req, res);
   const memberData = await db.ref(`members/${req.params.uuid}`).once("value");
   res.status(200).json({
@@ -119,74 +129,8 @@ app.get("/member/:uuid", async (req, res) => {
 });
 
 /*
-app.get("/tracking/currentLocation/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
-  const currentLocation = await db.ref(`members/${req.params.uuid}/currentLocation`).once("value");
-  if (currentLocation.exists()) {
-    const locationValue: any = currentLocation.val();
-    const locationList: any = {
-      "accuracy": locationValue.accuracy ?? 0,
-      "altitude": locationValue.altitude ?? 0,
-      "battery": locationValue.battery ?? 0,
-      "heading": locationValue.heading ?? 0,
-      "isMoving": locationValue.isMoving ?? false,
-      "lat": locationValue.lat ?? 0,
-      "lng": locationValue.lng ?? 0,
-      "speed": locationValue.speed ?? 0,
-      "timestamp": locationValue.timestamp ?? 0,
-      "updatedAt": locationValue.updatedAt ?? 0,
-    };
-    res.status(200).json({
-      status: 200,
-      message: "OK",
-      data: {
-        uuid: req.params.uuid,
-        currentLocation: locationList,
-      },
-    });
-  }
-  res.status(200).json({
-    status: 200,
-    message: "OK",
-    data: {
-      uuid: req.params.uuid,
-      currentLocation: null,
-    },
-  });
-});
 
-app.get("/tracking/:uuid", async (req, res) => {
-  await isCheckUUID(req, res);
-  const realtimeLocation = await db.ref(`members/${req.params.uuid}/realtimeLocation`).once("value");
-  const locationLists: any = [];
-  if (realtimeLocation.exists()) {
-    const locationValues = realtimeLocation.val();
-    Object.values(locationValues).forEach((locationList: any) => {
-      locationLists.push({
-        "accuracy": locationList.accuracy ?? 0,
-        "altitude": locationList.altitude ?? 0,
-        "battery": locationList.battery ?? 0,
-        "heading": locationList.heading ?? 0,
-        "isMoving": locationList.isMoving ?? false,
-        "lat": locationList.lat ?? 0,
-        "lng": locationList.lng ?? 0,
-        "speed": locationList.speed ?? 0,
-        "timestamp": locationList.timestamp ?? 0,
-        "updatedAt": locationList.updatedAt ?? 0,
-      });
-    });
-  }
-  res.status(200).json({
-    status: 200,
-    message: "OK",
-    data: {
-      uuid: req.params.uuid,
-      realtimeLocation: locationLists,
-    },
-  });
-});
-
-app.put("/tracking/currentLocation/:uuid", async (req, res) => {
+app.put("/tracking/currentLocation/:uuid", async (req: any, res: any) => {
   await isCheckUUID(req, res);
   const bodyParams: any = {
     lat: req.body.lat ?? 0,
@@ -215,7 +159,7 @@ app.put("/tracking/currentLocation/:uuid", async (req, res) => {
   });
 });
 
-app.put("/tracking/presence/:uuid", async (req, res) => {
+app.put("/tracking/presence/:uuid", async (req: any, res: any) => {
   await isCheckUUID(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
@@ -233,7 +177,7 @@ app.put("/tracking/presence/:uuid", async (req, res) => {
   });
 });
 
-app.put("/tracking/fcmToken/:uuid", async (req, res) => {
+app.put("/tracking/fcmToken/:uuid", async (req: any, res: any) => {
   await isCheckUUID(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
@@ -251,7 +195,7 @@ app.put("/tracking/fcmToken/:uuid", async (req, res) => {
   });
 });
 
-app.put("/tracking/stop/:uuid", async (req, res) => {
+app.put("/tracking/stop/:uuid", async (req: any, res: any) => {
   await isCheckUUID(req, res);
   const now = Date.now();
   await db.ref(`members/${req.params.uuid}`).update({
