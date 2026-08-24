@@ -50,7 +50,7 @@ class RESTfulAPI {
     try {
       await init();
       final uri = Uri(path: pathUrl, queryParameters: params);
-      print('RESTful API | GET | ${AppConfig.apiUrl}${params.toString() == '{}' ? uri.toString() : '${uri.toString()}&'}version=${AppConfig.appVersion}');
+      print('RESTful API | GET | ${AppConfig.apiUrl}${params.toString() == '{}' ? uri.toString() : '${uri.toString()}&'}version=${AppConfig.appVersion}&accessToken=${AppConfig.accessToken}');
       if (params.toString() != '{}') print('RESTful API | PARAMS | ${params.toString()}');
       Response response = await dio.get<Map<String, dynamic>>(
         pathUrl,
@@ -74,7 +74,7 @@ class RESTfulAPI {
     try {
       await init();
       final uri = Uri(path: pathUrl, queryParameters: params);
-      print('RESTful API | POST | ${AppConfig.apiUrl}${params.toString() == '{}' ? uri.toString() : '${uri.toString()}&'}version=${AppConfig.appVersion}');
+      print('RESTful API | POST | ${AppConfig.apiUrl}${params.toString() == '{}' ? uri.toString() : '${uri.toString()}&'}version=${AppConfig.appVersion}&accessToken=${AppConfig.accessToken}');
       if (body.toString() != '{}') print('RESTful API | BODY | ${body.toString()}');
       if (params.toString() != '{}') print('RESTful API | PARAMS | ${params.toString()}');
       final response = await dio.post<Map<String, dynamic>>(
@@ -101,7 +101,7 @@ class RESTfulAPI {
     try {
       await init();
       final uri = Uri(path: pathUrl, queryParameters: params);
-      print('RESTful API | PUT | ${AppConfig.apiUrl}${params.toString() == '{}' ? uri.toString() : '${uri.toString()}&'}version=${AppConfig.appVersion}');
+      print('RESTful API | PUT | ${AppConfig.apiUrl}${params.toString() == '{}' ? uri.toString() : '${uri.toString()}&'}version=${AppConfig.appVersion}&accessToken=${AppConfig.accessToken}');
       if (body.toString() != '{}') print('RESTful API | BODY | ${body.toString()}');
       if (params.toString() != '{}') print('RESTful API | PARAMS | ${params.toString()}');
       Response response = await dio.put<Map<String, dynamic>>(
@@ -127,7 +127,7 @@ class RESTfulAPI {
     try {
       await init();
       final uri = Uri(path: pathUrl, queryParameters: params);
-      print('RESTful API | DELETE | ${AppConfig.apiUrl}${params.toString() == '{}' ? uri.toString() : '${uri.toString()}&'}version=${AppConfig.appVersion}');
+      print('RESTful API | DELETE | ${AppConfig.apiUrl}${params.toString() == '{}' ? uri.toString() : '${uri.toString()}&'}version=${AppConfig.appVersion}&accessToken=${AppConfig.accessToken}');
       if (params.toString() != '{}') print('RESTful API | PARAMS | ${params.toString()}');
       Response response = await dio.delete<Map<String, dynamic>>(
         pathUrl,
