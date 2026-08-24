@@ -162,6 +162,30 @@ app.put("/tracking/presence/:uuid", async (req, res) => {
   });
 });
 
+app.put("/tracking/fcmToken/:uuid", async (req, res) => {
+  if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
+    res.status(500).json({
+      status: 500,
+      message: "SERVER ERROR",
+    });
+    return;
+  }
+  const now = Date.now();
+  await db.ref(`members/${req.params.uuid}`).update({
+    fcmToken: req.body.fcmToken ?? "",
+    lastChanged: now,
+  });
+  res.status(200).json({
+    status: 200,
+    message: "UPDATED",
+    data: {
+      uuid: req.params.uuid,
+      fcmToken: req.body.fcmToken ?? "",
+      lastChanged: now,
+    },
+  });
+});
+
 app.put("/tracking/stop/:uuid", async (req, res) => {
   if (req.params.uuid == "" || req.params.uuid == null || req.params.uuid == undefined) {
     res.status(500).json({
