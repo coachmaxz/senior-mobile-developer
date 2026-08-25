@@ -93,10 +93,13 @@ app.get("/tracking/lists/:uuid", async (req: any, res: any) => {
   if (realtimeLocation.exists()) {
     const locationValues = realtimeLocation.val();
     Object.keys(locationValues).forEach((trackingId: any) => {
+      let firstlocationList: any = Object.values(locationValues[trackingId]);
+      firstlocationList = firstlocationList.length > 0 ? firstlocationList[0] : null;
       locationLists.push({
         uuid: req.params.uuid,
         trackingId: trackingId,
         locationCount: Object.keys(locationValues[trackingId]).length ?? 0,
+        createdAt: firstlocationList.timestamp,
       });
     });
   }
