@@ -4,7 +4,7 @@ import express from "express";
 admin.initializeApp();
 
 const db = admin.database();
-const trackingRouter = express.Router();
+const router = express.Router();
 
 const isCheckByUuid = async (req: any, res: any) => {
   if (req.params.uuid == null || req.params.uuid == "" || req.params.uuid == undefined) {
@@ -63,7 +63,7 @@ const convertTrackingToJSON = (data: any) => {
   };
 };
 
-trackingRouter.get("/currentLocation/:uuid", async (req: any, res: any) => {
+router.get("/currentLocation/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const currentLocation = await db.ref(`members/${req.params.uuid}/currentLocation`).once("value");
@@ -81,7 +81,7 @@ trackingRouter.get("/currentLocation/:uuid", async (req: any, res: any) => {
   });
 });
 
-trackingRouter.get("/lists/:uuid", async (req: any, res: any) => {
+router.get("/lists/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).once("value");
@@ -106,7 +106,7 @@ trackingRouter.get("/lists/:uuid", async (req: any, res: any) => {
   });
 });
 
-trackingRouter.get("/detail/:uuid/:trackingId", async (req: any, res: any) => {
+router.get("/detail/:uuid/:trackingId", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation/${req.params.trackingId}`).once("value");
@@ -128,7 +128,7 @@ trackingRouter.get("/detail/:uuid/:trackingId", async (req: any, res: any) => {
   });
 });
 
-trackingRouter.get("/:uuid", async (req: any, res: any) => {
+router.get("/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const realtimeLocation = await db.ref(`trackings/${req.params.uuid}/realtimeLocation`).once("value");
@@ -156,7 +156,7 @@ trackingRouter.get("/:uuid", async (req: any, res: any) => {
   });
 });
 
-trackingRouter.post("/start/:uuid", async (req: any, res: any) => {
+router.post("/start/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
@@ -183,7 +183,7 @@ trackingRouter.post("/start/:uuid", async (req: any, res: any) => {
   });
 });
 
-trackingRouter.post("/:uuid", async (req: any, res: any) => {
+router.post("/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
@@ -212,7 +212,7 @@ trackingRouter.post("/:uuid", async (req: any, res: any) => {
   });
 });
 
-trackingRouter.put("/currentLocation/:uuid", async (req: any, res: any) => {
+router.put("/currentLocation/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
@@ -236,7 +236,7 @@ trackingRouter.put("/currentLocation/:uuid", async (req: any, res: any) => {
   });
 });
 
-trackingRouter.put("/presence/:uuid", async (req: any, res: any) => {
+router.put("/presence/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
@@ -255,7 +255,7 @@ trackingRouter.put("/presence/:uuid", async (req: any, res: any) => {
   });
 });
 
-trackingRouter.put("/stop/:uuid", async (req: any, res: any) => {
+router.put("/stop/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
@@ -273,4 +273,4 @@ trackingRouter.put("/stop/:uuid", async (req: any, res: any) => {
   });
 });
 
-export default trackingRouter;
+export default router;

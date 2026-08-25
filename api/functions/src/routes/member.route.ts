@@ -4,7 +4,7 @@ import express from "express";
 admin.initializeApp();
 
 const db = admin.database();
-const memberRouter = express.Router();
+const router = express.Router();
 
 const isCheckByUuid = async (req: any, res: any) => {
   if (req.params.uuid == null || req.params.uuid == "" || req.params.uuid == undefined) {
@@ -46,7 +46,7 @@ const isCheckByAccessToken = async (req: any, res: any) => {
   }
 };
 
-memberRouter.get("/lists", async (req: any, res: any) => {
+router.get("/lists", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   const memberData = await db.ref("members").once("value");
   const memberLists: any = [];
@@ -66,7 +66,7 @@ memberRouter.get("/lists", async (req: any, res: any) => {
   });
 });
 
-memberRouter.get("/:uuid", async (req: any, res: any) => {
+router.get("/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const memberData = await db.ref(`members/${req.params.uuid}`).once("value");
@@ -77,7 +77,7 @@ memberRouter.get("/:uuid", async (req: any, res: any) => {
   });
 });
 
-memberRouter.put("/fcmToken/:uuid", async (req: any, res: any) => {
+router.put("/fcmToken/:uuid", async (req: any, res: any) => {
   await isCheckByAccessToken(req, res);
   await isCheckByUuid(req, res);
   const now = Date.now();
@@ -96,4 +96,4 @@ memberRouter.put("/fcmToken/:uuid", async (req: any, res: any) => {
   });
 });
 
-export default memberRouter;
+export default router;
