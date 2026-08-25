@@ -61,10 +61,13 @@ body { margin: 0; }
 
 .icon-container { padding: 10px; }
 
-.member { display: inline-block; margin: 5px 10px; background-color: var(--color-gray-900); width: 80px; height: 80px; border-radius: 50%; }
+.member { display: inline-block; margin: 5px 10px; background-color: var(--color-gray-900); width: 90px; height: 90px; border-radius: 50%; }
 .member .relative { display: flex; padding: 15px 15px; text-align: center; flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center; }
 
-.track { display: inline-block; margin: 5px 10px; background-color: var(--color-gray-900); width: 80px; border-radius: 15px; }
-.track .relative { display: flex; padding: 20px 15px 15px 15px; text-align: center; flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center; }
+.track { display: inline-block; margin: 5px 10px; background-color: var(--color-gray-900); min-width: 80px; border-radius: 15px; }
 
+.track .relative { display: flex; padding: 20px 15px 15px 15px; text-align: center; flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center; flex-direction: column; }
+.track .relative img { display: block; }
+.track .relative span { display: block; padding-top: 10px; font-size: 12px; }
+  
 button:hover, a:hover { cursor: pointer; }

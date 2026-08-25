@@ -42,6 +42,7 @@ function App() {
 
   async function getFetchLocation() {
     try {
+      if (accessToken == "" || accessToken == null) { setTracking(false); return; }
       setLoading(true);
       const resMemberLists = await getFetchMemberLists(accessToken);
       if (resMemberLists.status == 200 && resMemberLists.data.length > 0) {
@@ -91,6 +92,19 @@ function App() {
       window.location.reload();
       return;
     }
+  }
+
+  const formatDateTH = (timestamp) => {
+    const datetime = new Date(timestamp);
+    return datetime.toLocaleDateString('th-TH', { 
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      calendar: 'buddhist'
+    });
   }
 
   useEffect(() => {
@@ -145,7 +159,7 @@ function App() {
             return (
               <a key={i} className="max-w-md text-white member text-center" onClick={() => onGoTo(member, null)}>
                 <div className="relative">
-                  <img className="w-10 h-10" src={"src/assets/ic-person.png"} alt="person" />
+                  <img className="w-12 h-12" src={"src/assets/ic-person.png"} alt="person" />
                   {/* <span className="top-0 left-7 absolute w-3.5 h-3.5 bg-success border-2 border-buffer rounded-full"></span> */}
                 </div>
               </a>
@@ -155,8 +169,8 @@ function App() {
             return (
               <a key={i} className="max-w-md text-white track text-center" onClick={() => onGoTo(tracks, null)}>
                 <div className="relative">
-                  <img className="w-10 h-10" src={"src/assets/ic-tracking.png"} alt="tracking" />
-                  {/* <span className="top-0 left-7 absolute w-3.5 h-3.5 bg-success border-2 border-buffer rounded-full"></span> */}
+                  <img className="w-15 h-15" src={"src/assets/ic-tracking.png"} alt="tracking" />
+                  <span className="">{formatDateTH(tracks.createdAt)}</span>
                 </div>
               </a>
             );
