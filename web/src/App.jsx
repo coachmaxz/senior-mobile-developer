@@ -159,7 +159,7 @@ function App() {
             return (
               <a key={i} className="max-w-md text-white member text-center" onClick={() => onGoTo(member, null)}>
                 <div className="relative">
-                  <img className="w-12 h-12" src={"src/assets/ic-person.png"} alt="person" />
+                  <img className="w-12 h-12" src={"assets/ic-person.png"} alt="person" />
                   {/* <span className="top-0 left-7 absolute w-3.5 h-3.5 bg-success border-2 border-buffer rounded-full"></span> */}
                 </div>
               </a>
@@ -169,7 +169,7 @@ function App() {
             return (
               <a key={i} className="max-w-md text-white track text-center" onClick={() => onGoTo(tracks, null)}>
                 <div className="relative">
-                  <img className="w-15 h-15" src={"src/assets/ic-tracking.png"} alt="tracking" />
+                  <img className="w-15 h-15" src={"assets/ic-tracking.png"} alt="tracking" />
                   <span className="">{formatDateTH(tracks.createdAt)}</span>
                 </div>
               </a>
