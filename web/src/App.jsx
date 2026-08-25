@@ -24,7 +24,7 @@ function App() {
   const [trackLists, setTrackLists] = useState([]);
 
   const [loading, setLoading] = useState(false);
-  const [tracking, setTracking] = useState(true);
+  const [tracking, setTracking] = useState(false);
 
   const loadMapWithLocations = async (realtimeLocation) => {
     if (realtimeLocation[0].lat > 0 && realtimeLocation[0].lng > 0) {
@@ -44,23 +44,28 @@ function App() {
     try {
       if (accessToken == "" || accessToken == null) { setTracking(false); return; }
       setLoading(true);
+      setTracking(true);
       const resMemberLists = await getFetchMemberLists(accessToken);
       if (resMemberLists.status == 200 && resMemberLists.data.length > 0) {
         setMembers(resMemberLists.data);
-      }
-      if (uuid != "" && uuid != null) {
-        const resTrackingLists = await getFetchTrackingLists(uuid, accessToken);
-        if (resTrackingLists.status == 200 && resTrackingLists.data.length > 0) {
-          console.log(resTrackingLists.data);
-          setTrackLists(resTrackingLists.data);
-        }
-        if (trackingId != "" && trackingId != null) {
-          const resRealtimeLocation = await getFetchLocations(uuid, trackingId, accessToken);
-          if (resRealtimeLocation.status == 200 && resRealtimeLocation.data.length > 0) {
-            loadMapWithLocations(resRealtimeLocation.data);
+        if (uuid != "" && uuid != null) {
+          const resTrackingLists = await getFetchTrackingLists(uuid, accessToken);
+          if (resTrackingLists.status == 200 && resTrackingLists.data.length > 0) {
+            setTrackLists(resTrackingLists.data);
+            if (trackingId != "" && trackingId != null) {
+              const resRealtimeLocation = await getFetchLocations(uuid, trackingId, accessToken);
+              if (resRealtimeLocation.status == 200 && resRealtimeLocation.data.length > 0) {
+                loadMapWithLocations(resRealtimeLocation.data);
+                setMode("localtion");
+                return;
+              }
+            }
+            setMode("tracking");
           }
         }
+        setMode("member");
       }
+      setTracking(false);
     } catch (err) {
       setLoading(false);
     } finally {
