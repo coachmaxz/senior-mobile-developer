@@ -26,6 +26,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [tracking, setTracking] = useState(false);
 
+  const [isShowBackButton, setIsShowBackButton] = useState(false);
+
   const loadMapWithLocations = async (realtimeLocation) => {
     if (realtimeLocation[0].lat > 0 && realtimeLocation[0].lng > 0) {
       const firstTrack = [ realtimeLocation[0].lat, realtimeLocation[0].lng ];
@@ -58,14 +60,19 @@ function App() {
                 loadMapWithLocations(resRealtimeLocation.data);
                 setMode("localtion");
                 setTracking(true);
+                setIsShowBackButton(true);
                 return;
               }
             }
             setMode("tracking");
             setTracking(true);
+            setIsShowBackButton(true);
             return;
           }
         }
+        setIsShowBackButton(false);
+      } else {
+        setIsShowBackButton(true);
       }
       setMode("member");
       setTracking(true);
@@ -100,6 +107,11 @@ function App() {
       window.location.reload();
       return;
     }
+    if (mode == 'member') {
+      navigate(`?accessToken=${accessToken}`); 
+      window.location.reload();
+      return;
+    }
   }
 
   const formatDateTH = (timestamp) => {
@@ -117,15 +129,6 @@ function App() {
 
   useEffect(() => {
     getFetchLocation();
-    // if (uuid != null && uuid != "" && trackingId != null && trackingId != "") {
-    //   setMode("localtion");
-    //   return;
-    // }
-    // if (uuid != null && uuid != "") {
-    //   setMode("tracking");
-    //   return;
-    // }
-    // setMode("member");
   }, []);
 
   return (
@@ -143,7 +146,7 @@ function App() {
           <div className="flex items-center gap-2">
             <span className={`h-3 w-3 rounded-full ${tracking ? "bg-green-500" : "bg-red-500"}`} />
             <span>{tracking ? "Tracking" : "Offline"}</span>
-            { mode != "member" && (
+            { isShowBackButton && (
               <button onClick={onBack} className="rounded-lg bg-white/10 px-4 py-2 text-sm hover:bg-white/20">
                 Back
               </button>
