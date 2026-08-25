@@ -1,33 +1,63 @@
 import { useEffect, useState } from "react";
-import TrackingMap from "./components/TrackingMap";
+import { useNavigate } from "react-router";
 
-import { getFetchLocations } from "./services/api";
+import TrackingMap from "./components/TrackingMap";
+import { getFetchMemberLists, getFetchTrackingLists, getFetchLocations } from "./services/api";
 
 function App() {
+
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(window.location.search);
+  
+  const uuid = searchParams.get('uuid');
+  const trackingId = searchParams.get('trackingId');
+
+  const accessToken = searchParams.get('accessToken');
 
   const [startPosition, setStartPosition] = useState([]);
   const [destinationPosition, setDestinationPosition] = useState([]);
 
+  const [mode, setMode] = useState("member"); // member, tracking, localtion
+  const [members, setMembers] = useState([]);
+
   const [track, setTrack] = useState([]);
+  const [trackLists, setTrackLists] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [tracking, setTracking] = useState(true);
 
+  const loadMapWithLocations = async (realtimeLocation) => {
+    if (realtimeLocation[0].lat > 0 && realtimeLocation[0].lng > 0) {
+      const firstTrack = [ realtimeLocation[0].lat, realtimeLocation[0].lng ];
+      const lastTrack = [ realtimeLocation[realtimeLocation.length - 1].lat, realtimeLocation[realtimeLocation.length - 1].lng ];
+      setStartPosition(firstTrack);
+      setDestinationPosition(lastTrack);
+      setTracking(true);
+      setLoading(false);
+      setTrack(realtimeLocation.map((location, key) => {
+        return [ location.lat, location.lng ];
+      }));
+    }
+  }
+
   async function getFetchLocation() {
     try {
       setLoading(true);
-      const response = await getFetchLocations();
-      if (response.data.realtimeLocation.length > 0) {
-        if (response.data.realtimeLocation[0].lat > 0 && response.data.realtimeLocation[0].lng > 0) {
-          const firstTrack = [ response.data.realtimeLocation[0].lat, response.data.realtimeLocation[0].lng ];
-          const lastTrack = [ response.data.realtimeLocation[response.data.realtimeLocation.length - 1].lat, response.data.realtimeLocation[response.data.realtimeLocation.length - 1].lng ];
-          setStartPosition(firstTrack);
-          setDestinationPosition(lastTrack);
-          setTracking(true);
-          setLoading(false);
-          setTrack(response.data.realtimeLocation.map((location, key) => {
-            return [ location.lat, location.lng ];
-          }));
+      const resMemberLists = await getFetchMemberLists(accessToken);
+      if (resMemberLists.status == 200 && resMemberLists.data.length > 0) {
+        setMembers(resMemberLists.data);
+      }
+      if (uuid != "" && uuid != null) {
+        const resTrackingLists = await getFetchTrackingLists(uuid, accessToken);
+        if (resTrackingLists.status == 200 && resTrackingLists.data.length > 0) {
+          console.log(resTrackingLists.data);
+          setTrackLists(resTrackingLists.data);
+        }
+        if (trackingId != "" && trackingId != null) {
+          const resRealtimeLocation = await getFetchLocations(uuid, trackingId, accessToken);
+          if (resRealtimeLocation.status == 200 && resRealtimeLocation.data.length > 0) {
+            loadMapWithLocations(resRealtimeLocation.data);
+          }
         }
       }
     } catch (err) {
@@ -37,8 +67,43 @@ function App() {
     }
   }
 
+  async function onGoTo(location) {
+    if (mode == 'member' && location != null && location != "") {
+      navigate(`?uuid=${location.uuid}&accessToken=${accessToken}`);
+      window.location.reload();
+      return;
+    }
+    if (mode == 'tracking' && location != null && location != "") {
+      navigate(`?uuid=${location.uuid}&trackingId=${location.trackingId}&accessToken=${accessToken}`);
+      window.location.reload();
+      return;
+    }
+  }
+
+  async function onBack() {
+    if (mode == 'localtion') {
+      navigate(`?uuid=${uuid}&accessToken=${accessToken}`); 
+      window.location.reload();
+      return;
+    }
+    if (mode == 'tracking') {
+      navigate(`?accessToken=${accessToken}`); 
+      window.location.reload();
+      return;
+    }
+  }
+
   useEffect(() => {
     getFetchLocation();
+    if (uuid != null && uuid != "" && trackingId != null && trackingId != "") {
+      setMode("localtion");
+      return;
+    }
+    if (uuid != null && uuid != "") {
+      setMode("tracking");
+      return;
+    }
+    setMode("member");
   }, []);
 
   return (
@@ -56,6 +121,11 @@ function App() {
           <div className="flex items-center gap-2">
             <span className={`h-3 w-3 rounded-full ${tracking ? "bg-green-500" : "bg-red-500"}`} />
             <span>{tracking ? "Tracking" : "Offline"}</span>
+            { mode != "member" && (
+              <button onClick={onBack} className="rounded-lg bg-white/10 px-4 py-2 text-sm hover:bg-white/20">
+                Back
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -69,7 +139,30 @@ function App() {
             />
           </section>
         </div>
-      </main> : <></>}
+      </main> : <div className="grid h-full grid-cols-1 gap-4">
+        <section className="overflow-hidden rounded-xl bg-white shadow icon-container">
+          {!loading && members.length > 0 && trackLists.length == 0 && members.map((member, i) => {
+            return (
+              <a key={i} className="max-w-md text-white member text-center" onClick={() => onGoTo(member, null)}>
+                <div className="relative">
+                  <img className="w-10 h-10" src={"src/assets/ic-person.png"} alt="person" />
+                  {/* <span className="top-0 left-7 absolute w-3.5 h-3.5 bg-success border-2 border-buffer rounded-full"></span> */}
+                </div>
+              </a>
+            );
+          })}
+          {!loading && members.length > 0 && trackLists.length > 0 && trackLists.map((tracks, i) => {
+            return (
+              <a key={i} className="max-w-md text-white track text-center" onClick={() => onGoTo(tracks, null)}>
+                <div className="relative">
+                  <img className="w-10 h-10" src={"src/assets/ic-tracking.png"} alt="tracking" />
+                  {/* <span className="top-0 left-7 absolute w-3.5 h-3.5 bg-success border-2 border-buffer rounded-full"></span> */}
+                </div>
+              </a>
+            );
+          })}
+        </section>
+      </div>}
     </div>
   );
 

@@ -57,4 +57,14 @@ body { margin: 0; }
   height: calc(100svh - 48px);
 }
 
-.h-screen { margin: 1rem 0; height: calc(100svh - 48px); }
+.h-screen { height: calc(100svh - 48px); }
+
+.icon-container { padding: 10px; }
+
+.member { display: inline-block; margin: 5px 10px; background-color: var(--color-gray-900); width: 80px; height: 80px; border-radius: 50%; }
+.member .relative { display: flex; padding: 15px 15px; text-align: center; flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center; }
+
+.track { display: inline-block; margin: 5px 10px; background-color: var(--color-gray-900); width: 80px; border-radius: 15px; }
+.track .relative { display: flex; padding: 20px 15px 15px 15px; text-align: center; flex-wrap: nowrap; align-content: center; justify-content: center; align-items: center; }
+
+button:hover, a:hover { cursor: pointer; }
