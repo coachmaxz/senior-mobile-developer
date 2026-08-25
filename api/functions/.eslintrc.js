@@ -31,5 +31,6 @@ module.exports = {
     "indent": 0,
     "max-len": 0,
     "@typescript-eslint/no-explicit-any": 0,
+    "new-cap": 0,
   },
 };
