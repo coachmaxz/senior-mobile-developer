@@ -21,11 +21,16 @@ const isCheckByUuid = async (req: any, res: any) => {
   }
   const checkMember = await db.ref(`members/${req.params.uuid}`).once("value");
   if (!checkMember.exists()) {
-    res.status(404).json({
-      status: 404,
-      message: "NOT FOUND",
+    const now = Date.now();
+    await db.ref(`members/${req.params.uuid}`).set({
+      lastChanged: now,
+      status: "new",
     });
-    return;
+    // res.status(404).json({
+    //   status: 404,
+    //   message: "NOT FOUND",
+    // });
+    // return;
   }
 };
 
