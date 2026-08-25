@@ -129,6 +129,9 @@ function App() {
 
   useEffect(() => {
     getFetchLocation();
+    setTimeout(() => {
+      window.location.reload();
+    }, 10 * 1000);
   }, []);
 
   return (
