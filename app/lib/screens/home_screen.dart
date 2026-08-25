@@ -40,7 +40,7 @@ class HomeScreenState extends State<HomeScreen> {
     locService.locationStream.listen((LocationModel loc) {
       setState(() => myLocation = loc);
     });
-    getFetchLocation();
+    // getFetchLocation();
   }
 
   @override
@@ -281,7 +281,7 @@ class HomeScreenState extends State<HomeScreen> {
       'fcmToken': fcmToken,
     }, {});
     if ((res['status'] == 200) && res['data']['message'] == 'UPDATED') {
-      // print('PUT: Save FCM Token (UPDATED)');
+      print('PUT: Save FCM Token (UPDATED)');
     }
     // await FirebaseDatabase.instance.ref('members/$uuid/fcmToken').set(fcmToken);
   }
