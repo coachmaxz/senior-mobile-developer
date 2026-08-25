@@ -67,6 +67,9 @@ function App() {
             setMode("tracking");
             setTracking(true);
             setIsShowBackButton(true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 10 * 1000);
             return;
           }
         }
@@ -74,6 +77,9 @@ function App() {
       } else {
         setIsShowBackButton(true);
       }
+      setTimeout(() => {
+        window.location.reload();
+      }, 10 * 1000);
       setMode("member");
       setTracking(true);
     } catch (err) {
@@ -129,9 +135,6 @@ function App() {
 
   useEffect(() => {
     getFetchLocation();
-    setTimeout(() => {
-      window.location.reload();
-    }, 10 * 1000);
   }, []);
 
   return (
