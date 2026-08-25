@@ -44,7 +44,7 @@ function App() {
     try {
       if (accessToken == "" || accessToken == null) { setTracking(false); return; }
       setLoading(true);
-      setTracking(true);
+      setTracking(false);
       const resMemberLists = await getFetchMemberLists(accessToken);
       if (resMemberLists.status == 200 && resMemberLists.data.length > 0) {
         setMembers(resMemberLists.data);
@@ -57,15 +57,18 @@ function App() {
               if (resRealtimeLocation.status == 200 && resRealtimeLocation.data.length > 0) {
                 loadMapWithLocations(resRealtimeLocation.data);
                 setMode("localtion");
+                setTracking(true);
                 return;
               }
             }
             setMode("tracking");
+            setTracking(true);
+            return;
           }
         }
-        setMode("member");
       }
-      setTracking(false);
+      setMode("member");
+      setTracking(true);
     } catch (err) {
       setLoading(false);
     } finally {
@@ -114,15 +117,15 @@ function App() {
 
   useEffect(() => {
     getFetchLocation();
-    if (uuid != null && uuid != "" && trackingId != null && trackingId != "") {
-      setMode("localtion");
-      return;
-    }
-    if (uuid != null && uuid != "") {
-      setMode("tracking");
-      return;
-    }
-    setMode("member");
+    // if (uuid != null && uuid != "" && trackingId != null && trackingId != "") {
+    //   setMode("localtion");
+    //   return;
+    // }
+    // if (uuid != null && uuid != "") {
+    //   setMode("tracking");
+    //   return;
+    // }
+    // setMode("member");
   }, []);
 
   return (
@@ -158,7 +161,7 @@ function App() {
             />
           </section>
         </div>
-      </main> : <div className="grid h-full grid-cols-1 gap-4">
+      </main> : <div className="grid grid-cols-1 gap-4">
         <section className="overflow-hidden rounded-xl bg-white shadow icon-container">
           {!loading && members.length > 0 && trackLists.length == 0 && members.map((member, i) => {
             return (
