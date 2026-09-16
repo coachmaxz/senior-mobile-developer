@@ -1,14 +1,14 @@
 {
   "project_info": {
-    "project_number": "725529644795",
-    "firebase_url": "https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "project_id": "skyfrog-app-741d3",
-    "storage_bucket": "skyfrog-app-741d3.firebasestorage.app"
+    "project_number": "745853868107",
+    "firebase_url": "https://mobile-app-c5b1d-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "mobile-app-c5b1d",
+    "storage_bucket": "mobile-app-c5b1d.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:725529644795:android:cd2fa5ad90222d53a7ea5e",
+        "mobilesdk_app_id": "1:745853868107:android:77685a84f1df1b3c4515ce",
         "android_client_info": {
           "package_name": "com.example.skyfrog"
         }
@@ -16,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBdf5RXfGO0YYmeRXYv6bPukJpc9l1cdu0"
+          "current_key": "AIzaSyBK31cDkz9CXtCY-p59duD2QQGkMQb0mRY"
         }
       ],
       "services": {

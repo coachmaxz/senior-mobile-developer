@@ -41,51 +41,53 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAruYDyIXBon3XqwQke9L6_1CI_W6XFEwc',
-    appId: '1:725529644795:web:8bccd4c2c9b1178fa7ea5e',
-    messagingSenderId: '725529644795',
-    projectId: 'skyfrog-app-741d3',
-    authDomain: 'skyfrog-app-741d3.firebaseapp.com',
-    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
-    measurementId: 'G-V5GVQ3K3JP',
+    apiKey: 'AIzaSyBDGos0h66YgKBYqeiBKQ1acOn8Y32Efi4',
+    appId: '1:745853868107:web:f265919bbf92c79c4515ce',
+    messagingSenderId: '745853868107',
+    projectId: 'mobile-app-c5b1d',
+    authDomain: 'mobile-app-c5b1d.firebaseapp.com',
+    databaseURL: 'https://mobile-app-c5b1d-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'mobile-app-c5b1d.firebasestorage.app',
+    measurementId: 'G-KRQXHCSGPJ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBdf5RXfGO0YYmeRXYv6bPukJpc9l1cdu0',
-    appId: '1:725529644795:android:cd2fa5ad90222d53a7ea5e',
-    messagingSenderId: '725529644795',
-    projectId: 'skyfrog-app-741d3',
-    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
+    apiKey: 'AIzaSyBK31cDkz9CXtCY-p59duD2QQGkMQb0mRY',
+    appId: '1:745853868107:android:77685a84f1df1b3c4515ce',
+    messagingSenderId: '745853868107',
+    projectId: 'mobile-app-c5b1d',
+    databaseURL: 'https://mobile-app-c5b1d-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'mobile-app-c5b1d.firebasestorage.app',
   );
+
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDUNuDAEWBMQ7zFROcAHR9aILEZ3REs-1Q',
-    appId: '1:725529644795:ios:cd758f3512efb7aca7ea5e',
-    messagingSenderId: '725529644795',
-    projectId: 'skyfrog-app-741d3',
-    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
+    apiKey: 'AIzaSyBPFF910U1I1FRGW2sauUrY32JXcJmFAc0',
+    appId: '1:745853868107:ios:47617c1b607e65234515ce',
+    messagingSenderId: '745853868107',
+    projectId: 'mobile-app-c5b1d',
+    databaseURL: 'https://mobile-app-c5b1d-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'mobile-app-c5b1d.firebasestorage.app',
     iosBundleId: 'com.example.skyfrog',
   );
+
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDUNuDAEWBMQ7zFROcAHR9aILEZ3REs-1Q',
-    appId: '1:725529644795:ios:cd758f3512efb7aca7ea5e',
-    messagingSenderId: '725529644795',
-    projectId: 'skyfrog-app-741d3',
-    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
+    apiKey: 'AIzaSyBPFF910U1I1FRGW2sauUrY32JXcJmFAc0',
+    appId: '1:745853868107:ios:47617c1b607e65234515ce',
+    messagingSenderId: '745853868107',
+    projectId: 'mobile-app-c5b1d',
+    databaseURL: 'https://mobile-app-c5b1d-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'mobile-app-c5b1d.firebasestorage.app',
     iosBundleId: 'com.example.skyfrog',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAruYDyIXBon3XqwQke9L6_1CI_W6XFEwc',
-    appId: '1:725529644795:web:d077c3ca927c5e30a7ea5e',
-    messagingSenderId: '725529644795',
-    projectId: 'skyfrog-app-741d3',
-    authDomain: 'skyfrog-app-741d3.firebaseapp.com',
-    databaseURL: 'https://skyfrog-app-741d3-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'skyfrog-app-741d3.firebasestorage.app',
-    measurementId: 'G-XCRZ86YVEQ',
+    apiKey: 'AIzaSyBDGos0h66YgKBYqeiBKQ1acOn8Y32Efi4',
+    appId: '1:745853868107:web:0d450f1eeb8be9ff4515ce',
+    messagingSenderId: '745853868107',
+    projectId: 'mobile-app-c5b1d',
+    authDomain: 'mobile-app-c5b1d.firebaseapp.com',
+    databaseURL: 'https://mobile-app-c5b1d-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'mobile-app-c5b1d.firebasestorage.app',
+    measurementId: 'G-XET7WMK1XN',
   );
 }

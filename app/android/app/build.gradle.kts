@@ -19,7 +19,7 @@ val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 var dateFormat = LocalDateTime.now().format(formatter)
 
 base {
-  archivesName = "skyfrog-" + "Dev-" + "${flutter.versionName}" + "-build-${flutter.versionCode}-" + "${dateFormat}"
+  archivesName = "mobile-" + "Dev-" + "${flutter.versionName}" + "-build-${flutter.versionCode}-" + "${dateFormat}"
 }
 
 android {

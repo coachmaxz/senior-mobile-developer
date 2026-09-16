@@ -1,6 +1,6 @@
 class AppConfig {
 
-  static const String apiUrl = 'https://api-xa65ksosta-uc.a.run.app';
+  static const String apiUrl = 'https://api-eyjnavfhfa-uc.a.run.app';
   static const String appVersion = '1.0.0';
   static const String accessToken = 'cQoSR9GLJBPAknS11gNHHBk3iZ-ABceMgIY5JWaQ';  
 
